@@ -1,0 +1,397 @@
+[
+    {
+        "username": "DarkChocolate24",
+        "cart": [
+            {
+                "name": "Sova",
+                "section": "Agents",
+                "quantity": 1
+            }
+        ],
+        "payment_method": "gcash",
+        "date": "2025-05-28 09:57:41"
+    },
+    {
+        "username": "DarkChocolate24",
+        "cart": [
+            {
+                "name": "Reyna",
+                "section": "Agents",
+                "quantity": 2
+            },
+            {
+                "name": "Haven",
+                "section": "Maps",
+                "quantity": 1
+            },
+            {
+                "name": "Bind",
+                "section": "Maps",
+                "quantity": 1
+            },
+            {
+                "name": "Araxys Bundle",
+                "section": "Bundles",
+                "quantity": 1
+            },
+            {
+                "name": "Card2",
+                "section": "Player Cards",
+                "quantity": 1
+            },
+            {
+                "name": "Card1",
+                "section": "Player Cards",
+                "quantity": 1
+            },
+            {
+                "name": "Buddy3",
+                "section": "Buddy",
+                "quantity": 2
+            },
+            {
+                "name": "Buddy4",
+                "section": "Buddy",
+                "quantity": 1
+            },
+            {
+                "name": "Buddy5",
+                "section": "Buddy",
+                "quantity": 1
+            }
+        ],
+        "payment_method": "paymaya",
+        "date": "2025-05-28 10:08:35"
+    },
+    {
+        "username": "DarkChocolate24",
+        "cart": [
+            {
+                "name": "Phoenix",
+                "section": "Agents",
+                "quantity": 1
+            },
+            {
+                "name": "Sage",
+                "section": "Agents",
+                "quantity": 1
+            },
+            {
+                "name": "Glitchpop Bundle",
+                "section": "Bundles",
+                "quantity": 1
+            },
+            {
+                "name": "Card6",
+                "section": "Player Cards",
+                "quantity": 1
+            }
+        ],
+        "payment_method": "711",
+        "date": "2025-05-28 10:10:55"
+    },
+    {
+        "username": "DarkChocolate24",
+        "cart": [
+            {
+                "name": "Jett",
+                "section": "Agents",
+                "quantity": 1
+            },
+            {
+                "name": "Reyna",
+                "section": "Agents",
+                "quantity": 1
+            },
+            {
+                "name": "Haven",
+                "section": "Maps",
+                "quantity": 1
+            },
+            {
+                "name": "Araxys Bundle",
+                "section": "Bundles",
+                "quantity": 1
+            }
+        ],
+        "payment_method": "gcash",
+        "date": "2025-05-28 10:22:41"
+    },
+    {
+        "username": "DarkChocolate24",
+        "cart": [
+            {
+                "name": "Phoenix",
+                "section": "Agents",
+                "quantity": 1
+            },
+            {
+                "name": "Sova",
+                "section": "Agents",
+                "quantity": 1
+            }
+        ],
+        "payment_method": "gcash",
+        "date": "2025-05-28 11:02:33"
+    },
+    {
+        "username": "DarkChocolate24",
+        "cart": [
+            {
+                "name": "Waylay",
+                "section": "Agents",
+                "quantity": 1
+            },
+            {
+                "name": "Lotus",
+                "section": "Maps",
+                "quantity": 1
+            },
+            {
+                "name": "Raze",
+                "section": "Agents",
+                "quantity": 1
+            },
+            {
+                "name": "Sova",
+                "section": "Agents",
+                "quantity": 1
+            },
+            {
+                "name": "Kuronami Bundle",
+                "section": "Bundles",
+                "quantity": 1
+            },
+            {
+                "name": "Card6",
+                "section": "Player Cards",
+                "quantity": 1
+            }
+        ],
+        "payment_method": "711",
+        "date": "2025-05-29 02:04:59"
+    },
+    {
+        "username": "DarkChocolate24",
+        "cart": [
+            {
+                "name": "Jett",
+                "section": "Agents",
+                "quantity": 1
+            }
+        ],
+        "payment_method": "paymaya",
+        "date": "2025-05-29 02:07:44"
+    },
+    {
+        "username": "DarkChocolate24",
+        "cart": [
+            {
+                "name": "Brimstone",
+                "section": "Agents",
+                "quantity": 1
+            },
+            {
+                "name": "Killjoy",
+                "section": "Agents",
+                "quantity": 1
+            }
+        ],
+        "payment_method": "gcash",
+        "shipping_address": "11 Darkstreet, UNIT 1 ",
+        "shipping_fee": 10,
+        "box_size": "Medium",
+        "date": "2025-05-29 15:55:35"
+    },
+    {
+        "username": "DarkChocolate24",
+        "cart": [
+            {
+                "name": "Killjoy",
+                "section": "Agents",
+                "quantity": 1
+            }
+        ],
+        "payment_method": "paymaya",
+        "shipping_address": "awdawdawdaw",
+        "shipping_fee": 5,
+        "box_size": "Small",
+        "date": "2025-05-29 15:57:26"
+    },
+    {
+        "username": "DarkChocolate24",
+        "cart": [
+            {
+                "name": "Killjoy",
+                "section": "Agents",
+                "quantity": 1
+            }
+        ],
+        "payment_method": "gcash",
+        "shipping_address": "dawdawdd",
+        "shipping_fee": 5,
+        "box_size": "Small",
+        "total_fee": 14.75,
+        "date": "2025-05-29 16:07:53"
+    },
+    {
+        "username": "DarkChocolate24",
+        "cart": [
+            {
+                "name": "Killjoy",
+                "section": "Agents",
+                "quantity": 1
+            }
+        ],
+        "payment_method": "gcash",
+        "shipping_address": "dawwad",
+        "shipping_fee": 5,
+        "box_size": "Small",
+        "total_fee": 14.75,
+        "date": "2025-05-29 16:13:28"
+    },
+    {
+        "username": "DarkChocolate24",
+        "cart": [
+            {
+                "name": "Sova",
+                "section": "Agents",
+                "quantity": 1
+            },
+            {
+                "name": "Brimstone",
+                "section": "Agents",
+                "quantity": 1
+            },
+            {
+                "name": "Fracture",
+                "section": "Maps",
+                "quantity": 1
+            }
+        ],
+        "payment_method": "gcash",
+        "shipping_address": "10seifs",
+        "shipping_fee": 3,
+        "box_size": "Large",
+        "total_fee": 45,
+        "date": "2025-05-29 17:34:27"
+    },
+    {
+        "username": "DarkChocolate24",
+        "cart": [
+            {
+                "name": "Jett",
+                "section": "Agents",
+                "quantity": 1
+            },
+            {
+                "name": "Reyna",
+                "section": "Agents",
+                "quantity": 1
+            },
+            {
+                "name": "Haven",
+                "section": "Maps",
+                "quantity": 1
+            },
+            {
+                "name": "Elderflame Bundle",
+                "section": "Bundles",
+                "quantity": 1
+            }
+        ],
+        "payment_method": "gcash",
+        "shipping_address": "10 Darksrtreet Unit 24 ",
+        "shipping_fee": 3,
+        "box_size": "Large",
+        "total_fee": 78.75,
+        "date": "2025-05-29 18:04:31"
+    },
+    {
+        "username": "DarkChocolate24",
+        "cart": [
+            {
+                "name": "Jett",
+                "section": "Agents",
+                "quantity": 1
+            },
+            {
+                "name": "Reyna",
+                "section": "Agents",
+                "quantity": 1
+            },
+            {
+                "name": "Phoenix",
+                "section": "Agents",
+                "quantity": 1
+            },
+            {
+                "name": "Breeze",
+                "section": "Maps",
+                "quantity": 1
+            },
+            {
+                "name": "Buddy4",
+                "section": "Buddy",
+                "quantity": 1
+            },
+            {
+                "name": "Card7",
+                "section": "Player Cards",
+                "quantity": 1
+            },
+            {
+                "name": "Mystbloom Bundle",
+                "section": "Bundles",
+                "quantity": 1
+            },
+            {
+                "name": "Prelude Bundle",
+                "section": "Bundles",
+                "quantity": 2
+            }
+        ],
+        "payment_method": "paymaya",
+        "shipping_address": "10 DarkStreet Unit 2",
+        "shipping_fee": 3,
+        "box_size": "XLarge",
+        "total_fee": 864,
+        "date": "2025-05-29 18:27:54"
+    },
+    {
+        "username": "DarkChocolate24",
+        "cart": [
+            {
+                "name": "Jett",
+                "section": "Agents",
+                "quantity": 1
+            },
+            {
+                "name": "Sage",
+                "section": "Agents",
+                "quantity": 2
+            },
+            {
+                "name": "Icebox",
+                "section": "Maps",
+                "quantity": 1
+            },
+            {
+                "name": "Gaia Bundle",
+                "section": "Bundles",
+                "quantity": 1
+            },
+            {
+                "name": "Glitchpop Bundle",
+                "section": "Bundles",
+                "quantity": 1
+            }
+        ],
+        "payment_method": "gcash",
+        "shipping_address": "10 DarkStreet Unit 2",
+        "shipping_fee": 3,
+        "box_size": "Large",
+        "total_fee": 99,
+        "date": "2025-05-30 02:00:09"
+    }
+]
