@@ -1,4 +1,7 @@
 <?php
+// If you want to use the database, uncomment the next line and make sure db_connect.php defines $conn
+// require_once 'db_connect.php';
+
 $agents = [
   [ 
     "name" => "Bea",  
@@ -66,6 +69,20 @@ $agents = [
     ]
   ]
 ];
+
+// Only run this block if $conn is defined (database is connected)
+if (isset($conn)) {
+    $sql = "SELECT * FROM agents";
+    $result = $conn->query($sql);
+
+    if ($result && $result->num_rows > 0) {
+        while($row = $result->fetch_assoc()) {
+            $row['abilities'] = json_decode($row['abilities'], true);
+            $agents[] = $row;
+        }
+    }
+    $conn->close();
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">

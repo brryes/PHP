@@ -1,8 +1,17 @@
 <?php
 session_start();
+require_once 'db_connect.php';
 $file = __DIR__ . '/purchases.json';
 $purchases = file_exists($file) ? json_decode(file_get_contents($file), true) : [];
 $username = isset($_SESSION['username']) ? $_SESSION['username'] : '';
+
+// Fetch user details from database
+$user = null;
+if ($username) {
+    $stmt = $pdo->prepare("SELECT username, email, region, province, city, barangay FROM users WHERE username = ?");
+    $stmt->execute([$username]);
+    $user = $stmt->fetch();
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -174,16 +183,50 @@ $username = isset($_SESSION['username']) ? $_SESSION['username'] : '';
             color: #fff;
         }
         @keyframes fadeIn { from { opacity: 0; transform: scale(0.97);} to { opacity: 1; transform: scale(1);} }
+        /* Account details styles */
+        .account-details {
+            background: rgba(24,24,24,0.92);
+            border: 1.5px solid #ff4655;
+            border-radius: 1.1rem;
+            color: #fff;
+            font-size: 1.1rem;
+            padding: 1.5rem 1.2rem 1.2rem 1.2rem;
+            margin-bottom: 2.5rem;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+            box-shadow: 0 2px 16px 0 #0008;
+        }
+        .account-details h2 {
+            color: #ff4655;
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 0.7rem;
+        }
+        .account-details div {
+            margin-bottom: 0.3rem;
+        }
     </style>
 </head>
 <body class="py-12 px-4">
     <div class="max-w-2xl mx-auto">
+        <?php if ($user): ?>
+        <div class="account-details">
+            <h2>Account Details</h2>
+            <div><strong>Username:</strong> <?= htmlspecialchars($user['username']) ?></div>
+            <div><strong>Email:</strong> <?= htmlspecialchars($user['email']) ?></div>
+            <div><strong>Region:</strong> <?= htmlspecialchars($user['region']) ?></div>
+            <div><strong>Province:</strong> <?= htmlspecialchars($user['province']) ?></div>
+            <div><strong>City:</strong> <?= htmlspecialchars($user['city']) ?></div>
+            <div><strong>Barangay:</strong> <?= htmlspecialchars($user['barangay']) ?></div>
+        </div>
+        <?php endif; ?>
         <div class="mb-8 text-center">
             <div class="inventory-title flex items-center justify-center gap-4">
                 <i class="fas fa-archive"></i>
                 <?= htmlspecialchars($username) ?>'s Inventory
             </div>
-            <div class="inventory-subtitle">Inventory of your purchases</div>
+            <div class="inventory-subtitle">Inventory of your orders</div>
             <div class="text-center">
                 <a href="home.php" class="back-btn"><i class="fas fa-chevron-left mr-2"></i>Back to Menu</a>
             </div>
@@ -264,6 +307,3 @@ $username = isset($_SESSION['username']) ? $_SESSION['username'] : '';
                 if (e.target === modal) modal.classList.remove('active');
             });
         });
-    </script>
-</body>
-</html>

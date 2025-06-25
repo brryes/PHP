@@ -10,7 +10,7 @@
       margin: 0;
     }
     .bg-main {
-      background-image: url('images/landingbg.png');
+      background-image: url('images/valorcrate.jpg');
       background-size: cover;
       background-position: center;
     }
