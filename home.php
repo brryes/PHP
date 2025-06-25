@@ -11,7 +11,7 @@ if (!isset($_SESSION["username"])) {
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Valorant Menu</title>
+  <title>ValorCrate Menu</title>
 
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
@@ -124,15 +124,14 @@ if (!isset($_SESSION["username"])) {
   <div id="video-overlay"></div>
 
   <div class="logo-container">
-    <div class="logo-text">RIOT n GAMES</div>
-    <span class="logo-subtitle">V25 // ACT III</span>
+    <div class="logo-text">ValorCrate</div>
+    <span class="logo-subtitle">AN23 // TERM 3</span>
   </div>
 
   <!-- LEFT MENU -->
   <nav class="absolute top-1/2 -translate-y-1/2 left-6 flex flex-col space-y-8 text-white">
     <a href="place_order.php" class="menu-btn text-[#ff4c5b]"><i class="fas fa-box"></i><span>Place Order</span></a>
 
-    <a href="agents.php" class="menu-btn"><i class="fas fa-user-ninja"></i><span>Agents</span></a>
     <a href="logout.php" class="menu-btn"><i class="fas fa-sign-out-alt"></i><span>Logout</span></a>
     <a href="order_tracker.php" class="menu-btn"><i class="fas fa-shipping-fast"></i><span>Order Tracker</span></a>
     <a href="account.php" class="menu-btn"><i class="fas fa-id-card"></i><span>Account</span></a>
