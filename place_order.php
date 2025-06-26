@@ -4,7 +4,7 @@ if (!isset($_SESSION['username'])) {
   header('Location: index.php?error=Please log in first.');
   exit;
 }
-
+//HELLLOOO THIS IS BEA
 // Only reset order_saved and last_order when starting a new order (step 1)
 if (
     $_SERVER['REQUEST_METHOD'] !== 'POST' &&
