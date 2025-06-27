@@ -167,6 +167,7 @@ $status_steps = [
                         if ($now >= strtotime($order['pickup_date'] . ' +1 day')) $status_idx = 2;
                         if ($now >= strtotime($order['pickup_date'] . ' +2 days')) $status_idx = 3;
                         if (!empty($order['delivery_date']) && $now >= strtotime($order['delivery_date'])) $status_idx = 4;
+
                     }
                     ?>
                     <div class="tracker-card">
@@ -192,7 +193,7 @@ $status_steps = [
                         </div>
                         <div class="tracker-steps">
                             <?php foreach ($status_steps as $i => $step): ?>
-                                <div class="tracker-step <?= $i < $status_idx ? 'completed' : ($i == $status_idx ? 'active' : '') ?>">
+                                <div class="tracker-step <?= $i <= $status_idx ? 'completed' : '' ?>">
                                     <div class="tracker-circle">
                                         <?= $i < $status_idx ? '<i class="fas fa-check"></i>' : $i + 1 ?>
                                     </div>
