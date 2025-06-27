@@ -573,7 +573,6 @@ $estimated = calculate_estimated_fee($region, $weight, $value);
           </div>
           <button onclick="window.print()" class="bg-gray-700 px-4 py-2 rounded no-print">🖨️ Print Summary</button>
           <a href="order_tracker.php" class="block text-red-400 underline mt-4 no-print">→ Track Order</a>
-          <a href="home.php" class="block text-red-400 underline mt-4 no-print">← Return Home</a>
         </div>
       <?php endif; ?>
     </form>
