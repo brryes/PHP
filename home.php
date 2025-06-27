@@ -17,26 +17,26 @@ if (!isset($_SESSION["username"])) {
       margin: 0;
       padding: 0;
       min-height: 100vh;
-      background: #111827; /* Tailwind gray-900 */
+      background: #111827;
       font-family: 'Oswald', Arial, sans-serif;
       display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-
-    .container {
-      display: flex;
       flex-direction: column;
-      align-items: center;
     }
 
     .header {
       font-size: 3rem;
       font-weight: 600;
       text-align: center;
-      margin-bottom: 24px;
+      margin: 32px 0 16px;
       color: #ff4655;
       letter-spacing: 1px;
+    }
+
+    .main-content {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
 
     .menu-grid {
@@ -78,7 +78,7 @@ if (!isset($_SESSION["username"])) {
       text-align: center;
       font-size: 1rem;
       color: #ff4655;
-      margin-top: 24px;
+      margin: 16px 0;
       letter-spacing: 1px;
     }
 
@@ -102,17 +102,17 @@ if (!isset($_SESSION["username"])) {
 </head>
 
 <body>
-  <div class="container">
-    <div class="header">ValorCrate</div>
+  <div class="header">ValorCrate</div>
 
+  <div class="main-content">
     <div class="menu-grid">
       <a href="place_order.php" class="menu-btn">Place<br>Order</a>
       <a href="order_tracker.php" class="menu-btn">Order<br>Tracker</a>
       <a href="account.php" class="menu-btn">Account</a>
       <a href="logout.php" class="menu-btn">Logout</a>
     </div>
-
-    <div class="footer">All rights reserved</div>
   </div>
+
+  <div class="footer">All rights reserved</div>
 </body>
 </html>
