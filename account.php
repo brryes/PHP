@@ -73,7 +73,7 @@ $delivered_orders = array_filter($all_orders, 'isDelivered');
     </style>
 </head>
 <body>
-    <div class="title"><i class="fas fa-box"></i> Delivered Orders</div>
+    <div class="title"><i class="fas fa-box"></i> Delivered Parcels</div>
 
     <?php if (count($delivered_orders) > 0): ?>
         <?php foreach ($delivered_orders as $order): ?>
@@ -102,7 +102,7 @@ $delivered_orders = array_filter($all_orders, 'isDelivered');
         <?php endforeach; ?>
     <?php else: ?>
         <div class="text-center text-gray-400 text-lg">
-            No delivered orders yet.
+            No delivered parcels yet.
         </div>
     <?php endif; ?>
 
