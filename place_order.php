@@ -19,13 +19,7 @@ $username = htmlspecialchars($_SESSION['username']);
 $currentStep = $_POST['step'] ?? ($_GET['step'] ?? '1');
 
 // Fee calculation based on location
-function get_base_fee($sender_city, $recipient_city)
-{
-  if (strtolower($sender_city) === strtolower($recipient_city)) {
-    return 50; // same city
-  }
-  return 80; // different city
-}
+
 
 // Preserve function now checks POST first, then last_order session for GET step 4
 function preserve($name)
@@ -42,6 +36,47 @@ function validate_contact($number)
 {
   $cleaned = preg_replace('/\s+/', '', $number);
   return preg_match('/^(09\d{9}|\+639\d{9})$/', $cleaned);
+}
+function get_shipping_area($region_name) {
+  $metro_manila = ['NCR'];
+  $luzon = ['Region I', 'Region II', 'Region III', 'Region IV-A', 'Region IV-B', 'Region V', 'CAR'];
+  $visayas = ['Region VI', 'Region VII', 'Region VIII'];
+  $mindanao = ['Region IX', 'Region X', 'Region XI', 'Region XII', 'Region XIII', 'BARMM'];
+
+  if (in_array($region_name, $metro_manila)) return 'Metro Manila';
+  if (in_array($region_name, $luzon)) return 'Luzon';
+  if (in_array($region_name, $visayas)) return 'Visayas';
+  if (in_array($region_name, $mindanao)) return 'Mindanao';
+
+  return null; // Unknown
+}
+
+//calculate_estimated_fee function now uses get_shipping_area
+// to determine the area and apply different rates based on weight and value
+function calculate_estimated_fee($region, $weight, $value) {
+  $area = get_shipping_area($region);
+  $fee = 0;
+
+  if ($weight <= 0) return 0;
+
+  switch ($area) {
+    case 'Metro Manila':
+      $fee = $weight <= 0.5 ? 85 : 115;
+      break;
+    case 'Luzon':
+      $fee = $weight <= 0.5 ? 95 : 165;
+      break;
+    case 'Visayas':
+      $fee = $weight <= 0.5 ? 100 : 180;
+      break;
+    case 'Mindanao':
+      $fee = $weight <= 0.5 ? 105 : 195;
+      break;
+    default:
+      $fee = 120; // fallback/default rate if region is not matched
+  }
+
+  return $fee + $value; // ✅ Final estimate (goods value added directly, not as percent)
 }
 
 // --- Save order to MySQL database only once and redirect before output ---
@@ -325,28 +360,28 @@ function restoreAllDropdowns() {
   </script>
 </head>
 
-<body class="bg-gray-900 text-gray-200 min-h-screen py-8 px-4">
-  <div class="max-w-3xl mx-auto bg-gray-800 p-8 rounded shadow-xl">
-    <h1 class="text-3xl font-bold text-center text-red-500 mb-2">Shipping Form</h1>
-    <div class="flex justify-end mb-6 no-print">
-      <a href="home.php" onclick="return confirm('Are you sure you want to go back?')"
-        class="bg-gray-700 hover:bg-gray-600 text-white text-sm px-4 py-2 rounded">
-        ← Back to Home
-      </a>
-    </div>
-    <div class="flex justify-between mb-8">
-      <?php for ($i = 1; $i <= 4; $i++): ?>
-        <div class="progress-step <?= $currentStep == $i ? 'progress-active' : '' ?>">
-          <?= sprintf('%02d', $i) ?><br><span
-            class="text-sm"><?= ['Sender', 'Recipient', 'Package', 'Complete'][$i - 1] ?></span>
-        </div>
-      <?php endfor; ?>
-    </div>
+<body class="bg-gray-900 text-gray-200 min-h-screen flex items-center justify-center px-4">
+  <div class="w-full max-w-3xl bg-gray-800 p-8 rounded shadow-xl">
+      <h1 class="text-3xl font-bold text-center text-red-500 mb-4">Shipping Form</h1>
+      <div class="flex justify-end mb-6 no-print">
+        <a href="home.php" onclick="return confirm('Are you sure you want to go back?')"
+          class="bg-gray-700 hover:bg-gray-600 text-white text-sm px-4 py-2 rounded">
+          ← Back to Home
+        </a>
+      </div>
+      <div class="flex justify-between mb-8">
+        <?php for ($i = 1; $i <= 4; $i++): ?>
+          <div class="progress-step <?= $currentStep == $i ? 'progress-active' : '' ?>">
+            <?= sprintf('%02d', $i) ?><br><span
+              class="text-sm"><?= ['Sender', 'Recipient', 'Package', 'Complete'][$i - 1] ?></span>
+          </div>
+        <?php endfor; ?>
+      </div>
 
-    <form method="POST" class="space-y-6">
-      <input type="hidden" name="step" value="<?= $currentStep ?>">
+      <form method="POST" class="space-y-6">
+        <input type="hidden" name="step" value="<?= $currentStep ?>">
 
-      <?php
+        <?php
       // Helper: output hidden fields for a list of names
       function hidden_fields($fields) {
         foreach ($fields as $f) {
@@ -355,66 +390,64 @@ function restoreAllDropdowns() {
       }
       ?>
 
-      <?php if ($currentStep == '1'): ?>
-        <h2 class="text-xl font-semibold">01. Sender Information</h2>
-        <input name="sender_name" placeholder="Full Name" value="<?= preserve('sender_name') ?>" required
-          class="bg-gray-700 p-2 rounded w-full">
-        <input name="sender_contact" placeholder="Contact Number" pattern="^(09\d{9}|\+639\d{9})$"
-          title="09123456789 or +639123456789" value="<?= preserve('sender_contact') ?>" required
-          class="bg-gray-700 p-2 rounded w-full">
-        <input name="sender_address" placeholder="Street" value="<?= preserve('sender_address') ?>" required
-          class="bg-gray-700 p-2 rounded w-full">
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <select name="sender_region" id="sender_region" required class="bg-gray-700 p-2 rounded">
-            <option value="">Select Region</option>
-          </select>
-          <select name="sender_province" id="sender_province" required class="bg-gray-700 p-2 rounded">
-            <option value="">Select Province</option>
-          </select>
-          <select name="sender_city" id="sender_city" required class="bg-gray-700 p-2 rounded">
-            <option value="">Select City/Municipality</option>
-          </select>
-          <select name="sender_barangay" id="sender_barangay" required class="bg-gray-700 p-2 rounded">
-            <option value="">Select Barangay</option>
-          </select>
-        </div>
-        <button type="submit" name="step" value="2"
-          class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded no-print float-right">Next →</button>
+        <?php if ($currentStep == '1'): ?>
+          <h2 class="text-xl font-semibold mb-4">01. Sender Information</h2>
+          <input name="sender_name" placeholder="Full Name" value="<?= preserve('sender_name') ?>" required
+            class="bg-gray-700 p-3 rounded w-full">
+          <input name="sender_contact" placeholder="Contact Number" pattern="^(09\d{9}|\+639\d{9})$"
+            title="09123456789 or +639123456789" value="<?= preserve('sender_contact') ?>" required
+            class="bg-gray-700 p-3 rounded w-full">
+          <input name="sender_address" placeholder="Street" value="<?= preserve('sender_address') ?>" required
+            class="bg-gray-700 p-3 rounded w-full">
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <select name="sender_region" id="sender_region" required class="bg-gray-700 p-2 rounded">
+              <option value="">Select Region</option>
+            </select>
+            <select name="sender_province" id="sender_province" required class="bg-gray-700 p-2 rounded">
+              <option value="">Select Province</option>
+            </select>
+            <select name="sender_city" id="sender_city" required class="bg-gray-700 p-2 rounded">
+              <option value="">Select City/Municipality</option>
+            </select>
+            <select name="sender_barangay" id="sender_barangay" required class="bg-gray-700 p-2 rounded">
+              <option value="">Select Barangay</option>
+            </select>
+          </div>
+          <div class="flex justify-end mt-6">
+            <button type="submit" name="step" value="2"
+              class="bg-red-600 hover:bg-red-700 px-6 py-2 rounded text-white no-print">Next →</button>
+          </div>
 
-      <?php elseif ($currentStep == '2'): ?>
-        <?php
-        // Carry sender fields forward
-        hidden_fields([
-          'sender_name','sender_contact','sender_address',
-          'sender_region','sender_province','sender_city','sender_barangay'
-        ]);
-        ?>
-        <h2 class="text-xl font-semibold">02. Recipient Information</h2>
-        <input name="recipient_name" placeholder="Full Name" value="<?= preserve('recipient_name') ?>" required
-          class="bg-gray-700 p-2 rounded w-full">
-        <input name="recipient_contact" placeholder="Contact Number" pattern="^(09\d{9}|\+639\d{9})$"
-          value="<?= preserve('recipient_contact') ?>" required class="bg-gray-700 p-2 rounded w-full">
-        <input name="recipient_address" placeholder="Street" value="<?= preserve('recipient_address') ?>" required
-          class="bg-gray-700 p-2 rounded w-full">
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <select name="recipient_region" id="recipient_region" required class="bg-gray-700 p-2 rounded">
-            <option value="">Select Region</option>
-          </select>
-          <select name="recipient_province" id="recipient_province" required class="bg-gray-700 p-2 rounded">
-            <option value="">Select Province</option>
-          </select>
-          <select name="recipient_city" id="recipient_city" required class="bg-gray-700 p-2 rounded">
-            <option value="">Select City/Municipality</option>
-          </select>
-          <select name="recipient_barangay" id="recipient_barangay" required class="bg-gray-700 p-2 rounded">
-            <option value="">Select Barangay</option>
-          </select>
-        </div>
-        <div class="flex justify-between no-print">
-          <button type="submit" name="step" value="1" class="bg-gray-700 px-4 py-2 rounded">← Back</button>
-          <button type="submit" name="step" value="3" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded">Next
-            →</button>
-        </div>
+        <?php elseif ($currentStep == '2'): ?>
+          <?php hidden_fields([
+            'sender_name','sender_contact','sender_address',
+            'sender_region','sender_province','sender_city','sender_barangay'
+          ]); ?>
+          <h2 class="text-xl font-semibold mb-4">02. Recipient Information</h2>
+          <input name="recipient_name" placeholder="Full Name" value="<?= preserve('recipient_name') ?>" required
+            class="bg-gray-700 p-3 rounded w-full">
+          <input name="recipient_contact" placeholder="Contact Number" pattern="^(09\d{9}|\+639\d{9})$"
+            value="<?= preserve('recipient_contact') ?>" required class="bg-gray-700 p-3 rounded w-full">
+          <input name="recipient_address" placeholder="Street" value="<?= preserve('recipient_address') ?>" required
+            class="bg-gray-700 p-3 rounded w-full">
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <select name="recipient_region" id="recipient_region" required class="bg-gray-700 p-2 rounded">
+              <option value="">Select Region</option>
+            </select>
+            <select name="recipient_province" id="recipient_province" required class="bg-gray-700 p-2 rounded">
+              <option value="">Select Province</option>
+            </select>
+            <select name="recipient_city" id="recipient_city" required class="bg-gray-700 p-2 rounded">
+              <option value="">Select City/Municipality</option>
+            </select>
+            <select name="recipient_barangay" id="recipient_barangay" required class="bg-gray-700 p-2 rounded">
+              <option value="">Select Barangay</option>
+            </select>
+          </div>
+          <div class="flex justify-between items-center mt-6 no-print">
+            <button type="submit" name="step" value="1" class="bg-gray-700 px-6 py-2 rounded">← Back</button>
+            <button type="submit" name="step" value="3" class="bg-red-600 hover:bg-red-700 px-6 py-2 rounded">Next →</button>
+          </div>
 
       <?php elseif ($currentStep == '3'): ?>
         <?php
@@ -427,47 +460,64 @@ function restoreAllDropdowns() {
         ]);
         $senderCity = preserve('sender_city');
         $recipientCity = preserve('recipient_city');
-        $base_fee = get_base_fee($senderCity, $recipientCity);
         $weight = floatval(preserve('weight'));
-        $value = floatval(preserve('value'));
-        $estimated = $base_fee + ($weight * 40) + ($value * 0.01);
+        $value = floatval(str_replace(',', '', preserve('value')));
+        $weight = floatval(preserve('weight'));
+        $estimated = calculate_estimated_fee($region, $weight, $value);
+
+
+
         ?>
-        <h2 class="text-xl font-semibold">03. Package Information</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <input name="item_name" placeholder="Item Name (optional)" value="<?= preserve('item_name') ?>"
-            class="bg-gray-700 p-2 rounded">
-          <input type="number" name="quantity" placeholder="Quantity (optional)" value="<?= preserve('quantity') ?>"
-            min="1" class="bg-gray-700 p-2 rounded">
-          <select name="item_category" required class="bg-gray-700 p-2 rounded">
-            <option value="">Select Category *</option>
-            <?php foreach (['parcel', 'electronics', 'document'] as $cat): ?>
-              <option value="<?= $cat ?>" <?= preserve('item_category') == $cat ? 'selected' : '' ?>><?= ucfirst($cat) ?>
-              </option>
-            <?php endforeach; ?>
-          </select>
-          <input type="number" name="weight" placeholder="Weight (kg) *" value="<?= preserve('weight') ?>" min="0.01"
-            step="0.01" required class="bg-gray-700 p-2 rounded">
-          <input type="number" name="value" placeholder="Goods Value (₱) *" value="<?= preserve('value') ?>" min="1"
-            required class="bg-gray-700 p-2 rounded">
-          <select name="pickup_time" required class="bg-gray-700 p-2 rounded">
-            <option value="">Pickup Time</option>
-            <?php foreach (['8AM-10AM', '10AM-12PM', '1PM-3PM', '3PM-5PM'] as $time): ?>
-              <option <?= preserve('pickup_time') == $time ? 'selected' : '' ?>><?= $time ?></option>
-            <?php endforeach; ?>
-          </select>
-          <input type="date" name="pickup_date" value="<?= preserve('pickup_date') ?>" required 
-            class="bg-gray-700 p-4 rounded text-lg border-2 border-red-500 focus:border-red-700 focus:outline-none transition w-full" 
-            style="font-size:1.25rem;">
-          <textarea name="remarks" placeholder="Remarks (optional)" rows="2"
-            class="bg-gray-700 p-2 rounded"><?= preserve('remarks') ?></textarea>
-        </div>
-        <div class="text-center mt-4">
-          <p class="uppercase text-gray-400">Estimated Fee</p>
-          <div class="fee-display" id="feeDisplay">
-            ₱<?= number_format($estimated, 2) ?>
-          </div>
-          <small class="text-gray-400">Auto-updates when you enter weight or value</small>
-        </div>
+        <?php
+// Carry sender and recipient fields forward
+hidden_fields([
+  'sender_name','sender_contact','sender_address',
+  'sender_region','sender_province','sender_city','sender_barangay',
+  'recipient_name','recipient_contact','recipient_address',
+  'recipient_region','recipient_province','recipient_city','recipient_barangay'
+]);
+
+$senderCity = preserve('sender_city');
+$recipientCity = preserve('recipient_city');
+
+$rawValue = str_replace(',', '', preserve('value'));
+$value = is_numeric($rawValue) ? floatval($rawValue) : 0;
+$weight = floatval(preserve('weight'));
+$region = preserve('recipient_region');
+
+$estimated = calculate_estimated_fee($region, $weight, $value);
+?>
+
+<h2 class="text-xl font-semibold">03. Package Information</h2>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+  <input name="item_name" placeholder="Item Name (optional)" value="<?= preserve('item_name') ?>" class="bg-gray-700 p-2 rounded">
+  <input type="number" name="quantity" placeholder="Quantity (optional)" value="<?= preserve('quantity') ?>" min="1" class="bg-gray-700 p-2 rounded">
+  <select name="item_category" required class="bg-gray-700 p-2 rounded">
+    <option value="">Select Category *</option>
+    <?php foreach (['parcel', 'electronics', 'document', 'appliances', 'clothing', 'food', 'furniture', 'toys', 'books', 'fragile', 'others'] as $cat): ?>
+      <option value="<?= $cat ?>" <?= preserve('item_category') == $cat ? 'selected' : '' ?>><?= ucfirst($cat) ?></option>
+    <?php endforeach; ?>
+  </select>
+  <input type="number" name="weight" placeholder="Weight (kg) *" value="<?= preserve('weight') ?>" min="0.01" step="0.01" required class="bg-gray-700 p-2 rounded">
+  <input type="text" name="value" inputmode="numeric" pattern="[0-9,]*" placeholder="Goods Value (₱) *" value="<?= preserve('value') ?>" required class="bg-gray-700 p-2 rounded">
+  <select name="pickup_time" required class="bg-gray-700 p-2 rounded">
+    <option value="">Pickup Time</option>
+    <?php foreach (['8AM-10AM', '10AM-12PM', '1PM-3PM', '3PM-5PM'] as $time): ?>
+      <option <?= preserve('pickup_time') == $time ? 'selected' : '' ?>><?= $time ?></option>
+    <?php endforeach; ?>
+  </select>
+  <input type="date" name="pickup_date" value="<?= preserve('pickup_date') ?>" required class="bg-gray-700 p-4 rounded text-lg border-2 border-red-500 focus:border-red-700 focus:outline-none transition w-full" style="font-size:1.25rem;">
+  <textarea name="remarks" placeholder="Remarks (optional)" rows="2" class="bg-gray-700 p-2 rounded"><?= preserve('remarks') ?></textarea>
+</div>
+
+<div class="text-center mt-4">
+  <p class="uppercase text-gray-400">Estimated Fee</p>
+  <div class="fee-display" id="feeDisplay">
+    ₱<?= number_format($estimated, 2) ?>
+  </div>
+  <small class="text-gray-400">Auto-updates when you enter weight or value</small>
+</div>
+
         <div class="mt-4 no-print">
           <label><input type="checkbox" required class="mr-2">I have read, understand agreed to the terms and
             condition.</label>
@@ -537,14 +587,17 @@ function calculateFee() {
   if (!weightInput || !valueInput || !feeDisplay) return;
 
   const weight = parseFloat(weightInput.value) || 0;
-  const value = parseFloat(valueInput.value) || 0;
-  const fee = base + (weight * 40) + (value * 0.01);
+  const rawValue = valueInput.value.replace(/,/g, '');
+  const value = parseFloat(rawValue) || 0;
+
+  const fee = base + (weight * 40) + (value);
   feeDisplay.textContent = fee.toLocaleString('en-PH', {
     style: 'currency',
     currency: 'PHP',
     minimumFractionDigits: 2
   });
 }
+
 
 document.addEventListener('DOMContentLoaded', () => {
   const weightInput = document.querySelector('input[name="weight"]');
