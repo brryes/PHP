@@ -195,7 +195,7 @@ $status_steps = [
                             <?php foreach ($status_steps as $i => $step): ?>
                                 <div class="tracker-step <?= $i <= $status_idx ? 'completed' : '' ?>">
                                     <div class="tracker-circle">
-                                        <?= $i < $status_idx ? '<i class="fas fa-check"></i>' : $i + 1 ?>
+                                        <?= $i <= $status_idx ? '<i class="fas fa-check"></i>' : $i + 1 ?>
                                     </div>
                                     <div class="tracker-label"><?= $step ?></div>
                                 </div>
