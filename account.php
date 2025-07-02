@@ -8,14 +8,27 @@ $stmt = $pdo->prepare("SELECT * FROM orders WHERE username = ? ORDER BY id DESC"
 $stmt->execute([$username]);
 $all_orders = $stmt->fetchAll();
 
-function isDelivered($order) {
-    if (!empty($order['pickup_date']) && !empty($order['delivery_date'])) {
-        $now = time();
-        return $now >= strtotime($order['delivery_date']);
+$selected_date = isset($_GET['date']) ? $_GET['date'] : null;
+
+// Filter orders delivered on the selected date (if set)
+$filtered_orders = [];
+if ($selected_date) {
+    foreach ($all_orders as $order) {
+        if (!empty($order['delivery_date']) && date('Y-m-d', strtotime($order['delivery_date'])) === $selected_date) {
+            $filtered_orders[] = $order;
+        }
     }
-    return false;
+} else {
+    // Default: Show all delivered orders
+    function isDelivered($order) {
+        if (!empty($order['pickup_date']) && !empty($order['delivery_date'])) {
+            $now = time();
+            return $now >= strtotime($order['delivery_date']);
+        }
+        return false;
+    }
+    $filtered_orders = array_filter($all_orders, 'isDelivered');
 }
-$delivered_orders = array_filter($all_orders, 'isDelivered');
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -70,13 +83,45 @@ $delivered_orders = array_filter($all_orders, 'isDelivered');
             background: #ff4655;
             color: #fff;
         }
+        .calendar-form {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .calendar-input {
+            background: #2a2a2a;
+            color: #fff;
+            border: 1px solid #ff4655;
+            border-radius: 0.5rem;
+            padding: 0.5rem;
+        }
+        .calendar-button {
+            background: #ff4655;
+            color: #fff;
+            border: none;
+            border-radius: 0.5rem;
+            padding: 0.5rem 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-left: 1rem;
+        }
+        .calendar-button:hover {
+            background: #e53e3e;
+        }
     </style>
 </head>
 <body>
-    <div class="title"><i class="fas fa-box"></i> Delivered Parcels</div>
+    <div class="title">📦 Delivered Parcels</div>
 
-    <?php if (count($delivered_orders) > 0): ?>
-        <?php foreach ($delivered_orders as $order): ?>
+    <div class="calendar-form">
+        <form method="GET">
+            <label for="date">📅 Select Delivery Date:</label>
+            <input type="date" id="date" name="date" class="calendar-input" value="<?= htmlspecialchars($selected_date ?? '') ?>">
+            <button type="submit" class="calendar-button">View</button>
+        </form>
+    </div>
+
+    <?php if (count($filtered_orders) > 0): ?>
+        <?php foreach ($filtered_orders as $order): ?>
             <div class="order-card">
                 <div class="order-section-title">Delivery Date:</div>
                 <div class="order-content"><?= htmlspecialchars($order['delivery_date']) ?></div>
@@ -102,12 +147,12 @@ $delivered_orders = array_filter($all_orders, 'isDelivered');
         <?php endforeach; ?>
     <?php else: ?>
         <div class="text-center text-gray-400 text-lg">
-            No delivered parcels yet.
+            <?= $selected_date ? "No parcels found for $selected_date." : "No delivered parcels yet." ?>
         </div>
     <?php endif; ?>
 
     <div class="text-center mt-10">
-        <a href="home.php" class="back-btn"><i class="fas fa-chevron-left mr-2"></i>Back to Menu</a>
+        <a href="home.php" class="back-btn">← Back to Menu</a>
     </div>
 </body>
 </html>
