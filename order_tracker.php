@@ -3,9 +3,17 @@ session_start();
 $username = isset($_SESSION['username']) ? $_SESSION['username'] : '';
 require_once 'db_connect.php';
 
-$stmt = $pdo->prepare("SELECT * FROM orders WHERE username = ? ORDER BY id DESC");
-$stmt->execute([$username]);
-$user_orders = $stmt->fetchAll();
+// If order_id is set, show only that order's details
+$order_id = isset($_GET['order_id']) ? intval($_GET['order_id']) : null;
+if ($order_id) {
+    $stmt = $pdo->prepare("SELECT * FROM orders WHERE id = ? AND username = ?");
+    $stmt->execute([$order_id, $username]);
+    $user_orders = $stmt->fetchAll();
+} else {
+    $stmt = $pdo->prepare("SELECT * FROM orders WHERE username = ? ORDER BY id DESC");
+    $stmt->execute([$username]);
+    $user_orders = $stmt->fetchAll();
+}
 
 $status_steps = [
     "Pending Pickup",
@@ -167,7 +175,6 @@ $status_steps = [
                         if ($now >= strtotime($order['pickup_date'] . ' +1 day')) $status_idx = 2;
                         if ($now >= strtotime($order['pickup_date'] . ' +2 days')) $status_idx = 3;
                         if (!empty($order['delivery_date']) && $now >= strtotime($order['delivery_date'])) $status_idx = 4;
-
                     }
                     ?>
                     <div class="tracker-card">
@@ -231,5 +238,3 @@ $status_steps = [
     </div>
 
     <a href="home.php" class="back-btn"><i class="fas fa-chevron-left"></i> Back to Menu</a>
-</body>
-</html>
