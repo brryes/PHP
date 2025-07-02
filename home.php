@@ -60,7 +60,6 @@ if (!isset($_SESSION["username"])) {
       z-index: 10;
     }
 
-
     .logo {
       width: 240px;
       margin-bottom: 2rem;
@@ -100,7 +99,6 @@ if (!isset($_SESSION["username"])) {
       color: #ffffff;
       box-shadow: 0 0 30px rgba(255, 70, 85, 0.6), 0 10px 40px rgba(0, 0, 0, 0.3);
     }
-
 
     .footer {
       margin-top: 2rem;
@@ -150,10 +148,11 @@ if (!isset($_SESSION["username"])) {
     <div class="menu-grid">
       <a href="place_order.php" class="menu-btn">Place<br>Order</a>
       <a href="order_tracker.php" class="menu-btn">Order<br>Tracker</a>
+      <a href="calendar.php" class="menu-btn">Calendar</a>
       <a href="account.php" class="menu-btn">Account</a>
       <a href="logout.php" class="menu-btn">Logout</a>
     </div>
-    <div class="footer">© <?= date("Y") ?> ValorCrate. All rights reserved.</div>
+    <div class="footer">Â© <?= date("Y") ?> ValorCrate. All rights reserved.</div>
   </div>
 
   <!-- ?? Script -->
@@ -186,6 +185,5 @@ if (!isset($_SESSION["username"])) {
     document.addEventListener('keydown', enableAudio);
   </script>
 </body>
-
 
 </html>
