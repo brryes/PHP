@@ -106,12 +106,13 @@ $undelivered_orders = array_filter($all_orders, function ($order) {
                         </div>
 
                         <div class="order-section-title">Package:</div>
-                        <div class="order-content">
-                            <?= htmlspecialchars($order['item_category']) ?> - <?= htmlspecialchars($order['weight']) ?>kg<br>
-                            Value: ₱<?= htmlspecialchars($order['value']) ?><br>
-                            <strong>Item:</strong> <?= htmlspecialchars($order['item']) ?? 'N/A' ?><br>
-                            <strong>Quantity:</strong> <?= htmlspecialchars($order['quantity']) ?? 'N/A' ?>
-                        </div>
+<div class="order-content">
+    <strong>Item:</strong> <?= htmlspecialchars($order['item_category']) ?> - <?= htmlspecialchars($order['item']) ?? 'N/A' ?><br>
+    <strong>Quantity:</strong> <?= htmlspecialchars($order['quantity']) ?? 'N/A' ?><br>
+    <strong>Weight:</strong> <?= htmlspecialchars($order['weight']) ?> kg<br>
+    <strong>Value:</strong> ₱<?= htmlspecialchars($order['value']) ?>
+</div>
+
 
                         <div class="order-section-title">Sender:</div>
                         <div class="order-content">
@@ -141,12 +142,13 @@ $undelivered_orders = array_filter($all_orders, function ($order) {
                         </div>
 
                         <div class="order-section-title">Package:</div>
-                        <div class="order-content">
-                            <?= htmlspecialchars($order['item_category']) ?> - <?= htmlspecialchars($order['weight']) ?>kg<br>
-                            Value: ₱<?= htmlspecialchars($order['value']) ?><br>
-                            <strong>Item:</strong> <?= htmlspecialchars($order['item']) ?? 'N/A' ?><br>
-                            <strong>Quantity:</strong> <?= htmlspecialchars($order['quantity']) ?? 'N/A' ?>
-                        </div>
+<div class="order-content">
+    <strong>Item:</strong> <?= htmlspecialchars($order['item_category']) ?> - <?= htmlspecialchars($order['item']) ?? 'N/A' ?><br>
+    <strong>Quantity:</strong> <?= htmlspecialchars($order['quantity']) ?? 'N/A' ?><br>
+    <strong>Weight:</strong> <?= htmlspecialchars($order['weight']) ?> kg<br>
+    <strong>Value:</strong> ₱<?= htmlspecialchars($order['value']) ?>
+</div>
+
 
                         <div class="order-section-title">Sender:</div>
                         <div class="order-content">
