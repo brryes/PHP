@@ -8,32 +8,23 @@ $stmt = $pdo->prepare("SELECT * FROM orders WHERE username = ? ORDER BY id DESC"
 $stmt->execute([$username]);
 $all_orders = $stmt->fetchAll();
 
-$selected_date = isset($_GET['date']) ? $_GET['date'] : null;
-
-// Filter orders delivered on the selected date (if set)
-$filtered_orders = [];
-if ($selected_date) {
-    foreach ($all_orders as $order) {
-        if (!empty($order['delivery_date']) && date('Y-m-d', strtotime($order['delivery_date'])) === $selected_date) {
-            $filtered_orders[] = $order;
-        }
+function isDelivered($order) {
+    if (!empty($order['pickup_date']) && !empty($order['delivery_date'])) {
+        $now = time();
+        return $now >= strtotime($order['delivery_date']);
     }
-} else {
-    // Default: Show all delivered orders
-    function isDelivered($order) {
-        if (!empty($order['pickup_date']) && !empty($order['delivery_date'])) {
-            $now = time();
-            return $now >= strtotime($order['delivery_date']);
-        }
-        return false;
-    }
-    $filtered_orders = array_filter($all_orders, 'isDelivered');
+    return false;
 }
+
+$delivered_orders = array_filter($all_orders, 'isDelivered');
+$undelivered_orders = array_filter($all_orders, function ($order) {
+    return empty($order['delivery_date']) || time() < strtotime($order['delivery_date']);
+});
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Delivered Orders</title>
+    <title>Orders Overview</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link href="https://cdn.tailwindcss.com" rel="stylesheet">
@@ -50,6 +41,15 @@ if ($selected_date) {
             color: #ff4655;
             font-weight: bold;
             margin-bottom: 2rem;
+        }
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+        }
+        .column {
+            flex: 1;
+            min-width: 350px;
         }
         .order-card {
             background: #2a2a2a;
@@ -83,73 +83,82 @@ if ($selected_date) {
             background: #ff4655;
             color: #fff;
         }
-        .calendar-form {
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-        .calendar-input {
-            background: #2a2a2a;
-            color: #fff;
-            border: 1px solid #ff4655;
-            border-radius: 0.5rem;
-            padding: 0.5rem;
-        }
-        .calendar-button {
-            background: #ff4655;
-            color: #fff;
-            border: none;
-            border-radius: 0.5rem;
-            padding: 0.5rem 1rem;
-            font-weight: bold;
-            cursor: pointer;
-            margin-left: 1rem;
-        }
-        .calendar-button:hover {
-            background: #e53e3e;
-        }
     </style>
 </head>
 <body>
-    <div class="title">📦 Delivered Parcels</div>
+    <div class="title">📦 Orders Overview</div>
 
-    <div class="calendar-form">
-        <form method="GET">
-            <label for="date">📅 Select Delivery Date:</label>
-            <input type="date" id="date" name="date" class="calendar-input" value="<?= htmlspecialchars($selected_date ?? '') ?>">
-            <button type="submit" class="calendar-button">View</button>
-        </form>
-    </div>
+    <div class="container">
+        <!-- Delivered Orders -->
+        <div class="column">
+            <h2 class="text-xl font-bold text-green-400 mb-4 text-center">✅ Delivered Parcels</h2>
+            <?php if (count($delivered_orders) > 0): ?>
+                <?php foreach ($delivered_orders as $order): ?>
+                    <div class="order-card">
+                        <div class="order-section-title">Delivery Date:</div>
+                        <div class="order-content"><?= htmlspecialchars($order['delivery_date']) ?></div>
 
-    <?php if (count($filtered_orders) > 0): ?>
-        <?php foreach ($filtered_orders as $order): ?>
-            <div class="order-card">
-                <div class="order-section-title">Delivery Date:</div>
-                <div class="order-content"><?= htmlspecialchars($order['delivery_date']) ?></div>
+                        <div class="order-section-title">Recipient:</div>
+                        <div class="order-content">
+                            <?= htmlspecialchars($order['recipient_name']) ?><br>
+                            <?= htmlspecialchars($order['recipient_contact']) ?><br>
+                            <?= htmlspecialchars($order['recipient_address']) ?>
+                        </div>
 
-                <div class="order-section-title">Recipient:</div>
-                <div class="order-content">
-                    <?= htmlspecialchars($order['recipient_name']) ?><br>
-                    <?= htmlspecialchars($order['recipient_contact']) ?><br>
-                    <?= htmlspecialchars($order['recipient_address']) ?>
-                </div>
+                        <div class="order-section-title">Package:</div>
+                        <div class="order-content">
+                            <?= htmlspecialchars($order['item_category']) ?> - <?= htmlspecialchars($order['weight']) ?>kg<br>
+                            Value: ₱<?= htmlspecialchars($order['value']) ?><br>
+                            <strong>Item:</strong> <?= htmlspecialchars($order['item']) ?? 'N/A' ?><br>
+                            <strong>Quantity:</strong> <?= htmlspecialchars($order['quantity']) ?? 'N/A' ?>
+                        </div>
 
-                <div class="order-section-title">Package:</div>
-                <div class="order-content">
-                    <?= htmlspecialchars($order['item_category']) ?> - <?= htmlspecialchars($order['weight']) ?>kg<br>
-                    Value: ₱<?= htmlspecialchars($order['value']) ?>
-                </div>
-
-                <div class="order-section-title">Sender:</div>
-                <div class="order-content">
-                    <?= htmlspecialchars($order['sender_name']) ?> - <?= htmlspecialchars($order['sender_contact']) ?>
-                </div>
-            </div>
-        <?php endforeach; ?>
-    <?php else: ?>
-        <div class="text-center text-gray-400 text-lg">
-            <?= $selected_date ? "No parcels found for $selected_date." : "No delivered parcels yet." ?>
+                        <div class="order-section-title">Sender:</div>
+                        <div class="order-content">
+                            <?= htmlspecialchars($order['sender_name']) ?> - <?= htmlspecialchars($order['sender_contact']) ?>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <div class="text-center text-gray-400 text-lg">No delivered parcels yet.</div>
+            <?php endif; ?>
         </div>
-    <?php endif; ?>
+
+        <!-- Undelivered Orders -->
+        <div class="column">
+            <h2 class="text-xl font-bold text-yellow-400 mb-4 text-center">🚚 Undelivered Parcels</h2>
+            <?php if (count($undelivered_orders) > 0): ?>
+                <?php foreach ($undelivered_orders as $order): ?>
+                    <div class="order-card">
+                        <div class="order-section-title">Expected Delivery Date:</div>
+                        <div class="order-content"><?= htmlspecialchars($order['delivery_date'] ?? 'Not Set') ?></div>
+
+                        <div class="order-section-title">Recipient:</div>
+                        <div class="order-content">
+                            <?= htmlspecialchars($order['recipient_name']) ?><br>
+                            <?= htmlspecialchars($order['recipient_contact']) ?><br>
+                            <?= htmlspecialchars($order['recipient_address']) ?>
+                        </div>
+
+                        <div class="order-section-title">Package:</div>
+                        <div class="order-content">
+                            <?= htmlspecialchars($order['item_category']) ?> - <?= htmlspecialchars($order['weight']) ?>kg<br>
+                            Value: ₱<?= htmlspecialchars($order['value']) ?><br>
+                            <strong>Item:</strong> <?= htmlspecialchars($order['item']) ?? 'N/A' ?><br>
+                            <strong>Quantity:</strong> <?= htmlspecialchars($order['quantity']) ?? 'N/A' ?>
+                        </div>
+
+                        <div class="order-section-title">Sender:</div>
+                        <div class="order-content">
+                            <?= htmlspecialchars($order['sender_name']) ?> - <?= htmlspecialchars($order['sender_contact']) ?>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <div class="text-center text-gray-400 text-lg">All parcels are delivered.</div>
+            <?php endif; ?>
+        </div>
+    </div>
 
     <div class="text-center mt-10">
         <a href="home.php" class="back-btn">← Back to Menu</a>
