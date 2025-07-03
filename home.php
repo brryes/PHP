@@ -14,15 +14,10 @@ if (!isset($_SESSION["username"])) {
   <title>ValorCrate Menu</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
     html,
     body {
       height: 100%;
+      margin: 0;
       font-family: 'Oswald', sans-serif;
       overflow: hidden;
     }
@@ -47,121 +42,146 @@ if (!isset($_SESSION["username"])) {
       z-index: -1;
     }
 
-    .container {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
+    .main-wrapper {
+      height: 100vh;
+      width: 100vw;
       display: flex;
       flex-direction: column;
       align-items: center;
-      text-align: center;
+      justify-content: center;
       padding: 2rem;
+      text-align: center;
+      position: relative;
       z-index: 10;
     }
 
     .logo {
-      width: 240px;
+      width: 220px;
       margin-bottom: 2rem;
-      filter: drop-shadow(0 0 10px rgba(255, 70, 85, 0.6));
+      filter: drop-shadow(0 0 10px rgba(255, 70, 85, 0.7));
     }
 
     .menu-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
       gap: 1.5rem;
+      max-width: 480px;
       width: 100%;
-      max-width: 420px;
     }
 
     .menu-btn {
-      background: rgba(255, 255, 255, 0.12);
+      background: rgba(255, 255, 255, 0.08);
+      border: 2px solid rgba(255, 70, 85, 0.5);
+      color: #ff4655;
+      font-size: 1.25rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 1.5rem 1rem;
+      border-radius: 1rem;
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
-      color: #ff4655;
-      font-size: 1.8rem;
-      font-weight: bold;
-      border: 2px solid rgba(255, 70, 85, 0.5);
-      border-radius: 1rem;
-      padding: 2.5rem 0;
-      transition: all 0.3s ease-in-out;
+      box-shadow: 0 4px 20px rgba(255, 70, 85, 0.2);
+      transition: all 0.25s ease-in-out;
       text-decoration: none;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 100px;
-      box-shadow: 0 0 20px rgba(255, 70, 85, 0.15), 0 8px 32px rgba(0, 0, 0, 0.25);
     }
 
     .menu-btn:hover {
-      transform: scale(1.05);
       background: rgba(255, 70, 85, 0.2);
-      color: #ffffff;
-      box-shadow: 0 0 30px rgba(255, 70, 85, 0.6), 0 10px 40px rgba(0, 0, 0, 0.3);
+      color: white;
+      transform: scale(1.05);
+      box-shadow: 0 0 20px rgba(255, 70, 85, 0.5);
+    }
+
+    .logout-btn {
+      position: absolute;
+      bottom: 30px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 2px solid rgba(255, 70, 85, 0.5);
+      color: #ff4655;
+      padding: 1rem 2rem;
+      border-radius: 1rem;
+      font-size: 1rem;
+      font-weight: 600;
+      transition: 0.3s ease;
+    }
+
+    .logout-btn:hover {
+      background: rgba(255, 70, 85, 0.2);
+      color: white;
     }
 
     .footer {
       margin-top: 2rem;
-      font-size: 0.9rem;
       color: #ff4655;
+      font-size: 0.9rem;
       opacity: 0.8;
-      letter-spacing: 1px;
     }
 
-    @media (max-width: 600px) {
+    @media (max-width: 640px) {
       .logo {
         width: 160px;
-        margin-bottom: 1.5rem;
       }
 
       .menu-btn {
-        font-size: 1.2rem;
-        padding: 1.5rem 0;
-        min-height: 80px;
+        font-size: 1rem;
+        padding: 1.2rem;
+      }
+
+      .menu-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .logout-btn {
+        padding: 0.8rem 1.5rem;
+        font-size: 0.9rem;
       }
     }
   </style>
 </head>
 
 <body>
-  <!-- ?? Background Video -->
+  <!-- 🔁 Background Video -->
   <video id="bg-video" autoplay muted loop playsinline>
     <source src="mainmenu.mp4" type="video/mp4">
     Your browser does not support the video tag.
   </video>
 
-  <!-- ?? Semi-Transparent Overlay -->
+  <!-- 🔳 Overlay -->
   <div class="video-overlay"></div>
 
-  <!-- ?? Background Music -->
+  <!-- 🔊 Background Music -->
   <audio id="bg-music" autoplay loop>
     <source src="bgmusic.mp3" type="audio/mpeg">
     Your browser does not support the audio element.
   </audio>
 
-  <!-- ?? Hover Sound Effect -->
+  <!-- 🔉 Hover Sound -->
   <audio id="hover-sound" src="click.mp3" preload="auto"></audio>
 
-  <!-- ?? Centered Logo and Menu -->
-  <div class="container">
+  <!-- 🌟 Main Layout -->
+  <div class="main-wrapper">
     <img src="valorcrate_logo.png" alt="ValorCrate Logo" class="logo" />
+
+    <!-- Place Order shown first in the grid -->
     <div class="menu-grid">
-      <a href="place_order.php" class="menu-btn">Place<br>Order</a>
-      <a href="order_tracker.php" class="menu-btn">Order<br>Tracker</a>
+      <a href="place_order.php" class="menu-btn">Place Order</a>
+      <a href="order_tracker.php" class="menu-btn">Order Tracker</a>
       <a href="calendar.php" class="menu-btn">Calendar</a>
       <a href="account.php" class="menu-btn">Account</a>
-      <a href="logout.php" class="menu-btn">Logout</a>
     </div>
+
+    <!-- Logout button at bottom center -->
+    <a href="logout.php" class="logout-btn">Logout</a>
+
     <div class="footer">© <?= date("Y") ?> ValorCrate. All rights reserved.</div>
   </div>
 
-  <!-- ?? Script -->
+  <!-- 🎧 Scripts -->
   <script>
     const hoverSound = document.getElementById('hover-sound');
     const bgMusic = document.getElementById('bg-music');
     const buttons = document.querySelectorAll('.menu-btn');
 
-    // Play sound on hover
     buttons.forEach(button => {
       button.addEventListener('mouseenter', () => {
         hoverSound.currentTime = 0;
@@ -169,14 +189,10 @@ if (!isset($_SESSION["username"])) {
       });
     });
 
-    // ?? Adjust background music volume
     bgMusic.volume = 0.2;
 
-    // ?? Start music only after first user interaction
     function enableAudio() {
-      bgMusic.play().catch((e) => {
-        console.log("Autoplay prevented:", e);
-      });
+      bgMusic.play().catch(e => console.log("Autoplay blocked:", e));
       document.removeEventListener('click', enableAudio);
       document.removeEventListener('keydown', enableAudio);
     }
