@@ -7,12 +7,12 @@ if (!isset($_SESSION['username'])) {
 //HELLLOOO THIS IS BEA
 // Only reset order_saved and last_order when starting a new order (step 1)
 if (
-    $_SERVER['REQUEST_METHOD'] !== 'POST' &&
-    isset($_SESSION['order_saved']) &&
-    (empty($_GET['step']) || $_GET['step'] == '1')
+  $_SERVER['REQUEST_METHOD'] !== 'POST' &&
+  isset($_SESSION['order_saved']) &&
+  (empty($_GET['step']) || $_GET['step'] == '1')
 ) {
-    unset($_SESSION['order_saved']);
-    unset($_SESSION['last_order']);
+  unset($_SESSION['order_saved']);
+  unset($_SESSION['last_order']);
 }
 
 $username = htmlspecialchars($_SESSION['username']);
@@ -37,27 +37,34 @@ function validate_contact($number)
   $cleaned = preg_replace('/\s+/', '', $number);
   return preg_match('/^(09\d{9}|\+639\d{9})$/', $cleaned);
 }
-function get_shipping_area($region_name) {
+function get_shipping_area($region_name)
+{
   $metro_manila = ['NCR'];
   $luzon = ['Region I', 'Region II', 'Region III', 'Region IV-A', 'Region IV-B', 'Region V', 'CAR'];
   $visayas = ['Region VI', 'Region VII', 'Region VIII'];
   $mindanao = ['Region IX', 'Region X', 'Region XI', 'Region XII', 'Region XIII', 'BARMM'];
 
-  if (in_array($region_name, $metro_manila)) return 'Metro Manila';
-  if (in_array($region_name, $luzon)) return 'Luzon';
-  if (in_array($region_name, $visayas)) return 'Visayas';
-  if (in_array($region_name, $mindanao)) return 'Mindanao';
+  if (in_array($region_name, $metro_manila))
+    return 'Metro Manila';
+  if (in_array($region_name, $luzon))
+    return 'Luzon';
+  if (in_array($region_name, $visayas))
+    return 'Visayas';
+  if (in_array($region_name, $mindanao))
+    return 'Mindanao';
 
   return null; // Unknown
 }
 
 //calculate_estimated_fee function now uses get_shipping_area
 // to determine the area and apply different rates based on weight and value
-function calculate_estimated_fee($region, $weight, $value) {
+function calculate_estimated_fee($region, $weight, $value)
+{
   $area = get_shipping_area($region);
   $fee = 0;
 
-  if ($weight <= 0) return 0;
+  if ($weight <= 0)
+    return 0;
 
   switch ($area) {
     case 'Metro Manila':
@@ -82,46 +89,46 @@ function calculate_estimated_fee($region, $weight, $value) {
 // --- Save order to MySQL database only once and redirect before output ---
 // Only insert order on POST step 4, not on every load of step 4
 if (
-    $_SERVER['REQUEST_METHOD'] === 'POST' &&
-    isset($_POST['step']) && $_POST['step'] == '4' &&
-    !isset($_SESSION['order_saved'])
+  $_SERVER['REQUEST_METHOD'] === 'POST' &&
+  isset($_POST['step']) && $_POST['step'] == '4' &&
+  !isset($_SESSION['order_saved'])
 ) {
-    $pickup_date = preserve('pickup_date');
-    $delivery_date = '';
-    if ($pickup_date) {
-      $delivery_date = date('Y-m-d', strtotime($pickup_date . ' +2 days'));
-    }
+  $pickup_date = preserve('pickup_date');
+  $delivery_date = '';
+  if ($pickup_date) {
+    $delivery_date = date('Y-m-d', strtotime($pickup_date . ' +2 days'));
+  }
 
-    require_once 'db_connect.php';
-    $order = [
-      'username' => $_SESSION['username'],
-      'sender_name' => preserve('sender_name'),
-      'sender_contact' => preserve('sender_contact'),
-      'sender_address' => preserve('sender_address'),
-      'sender_region' => preserve('sender_region'),
-      'sender_province' => preserve('sender_province'),
-      'sender_city' => preserve('sender_city'),
-      'sender_barangay' => preserve('sender_barangay'),
-      'recipient_name' => preserve('recipient_name'),
-      'recipient_contact' => preserve('recipient_contact'),
-      'recipient_address' => preserve('recipient_address'),
-      'recipient_region' => preserve('recipient_region'),
-      'recipient_province' => preserve('recipient_province'),
-      'recipient_city' => preserve('recipient_city'),
-      'recipient_barangay' => preserve('recipient_barangay'),
-      'item_name' => preserve('item_name'),
-      'quantity' => preserve('quantity'),
-      'item_category' => preserve('item_category'),
-      'weight' => preserve('weight'),
-      'value' => preserve('value'),
-      'pickup_time' => preserve('pickup_time'),
-      'pickup_date' => $pickup_date,
-      'delivery_date' => $delivery_date,
-      'remarks' => preserve('remarks'),
-      'status' => 'Pending Pickup'
-    ];
+  require_once 'db_connect.php';
+  $order = [
+    'username' => $_SESSION['username'],
+    'sender_name' => preserve('sender_name'),
+    'sender_contact' => preserve('sender_contact'),
+    'sender_address' => preserve('sender_address'),
+    'sender_region' => preserve('sender_region'),
+    'sender_province' => preserve('sender_province'),
+    'sender_city' => preserve('sender_city'),
+    'sender_barangay' => preserve('sender_barangay'),
+    'recipient_name' => preserve('recipient_name'),
+    'recipient_contact' => preserve('recipient_contact'),
+    'recipient_address' => preserve('recipient_address'),
+    'recipient_region' => preserve('recipient_region'),
+    'recipient_province' => preserve('recipient_province'),
+    'recipient_city' => preserve('recipient_city'),
+    'recipient_barangay' => preserve('recipient_barangay'),
+    'item_name' => preserve('item_name'),
+    'quantity' => preserve('quantity'),
+    'item_category' => preserve('item_category'),
+    'weight' => preserve('weight'),
+    'value' => preserve('value'),
+    'pickup_time' => preserve('pickup_time'),
+    'pickup_date' => $pickup_date,
+    'delivery_date' => $delivery_date,
+    'remarks' => preserve('remarks'),
+    'status' => 'Pending Pickup'
+  ];
 
-    $sql = "INSERT INTO orders (
+  $sql = "INSERT INTO orders (
       username, sender_name, sender_contact, sender_address, sender_region, sender_province, sender_city, sender_barangay,
       recipient_name, recipient_contact, recipient_address, recipient_region, recipient_province, recipient_city, recipient_barangay,
       item_name, quantity, item_category, weight, value, pickup_time, pickup_date, delivery_date, remarks, status
@@ -130,12 +137,12 @@ if (
       :recipient_name, :recipient_contact, :recipient_address, :recipient_region, :recipient_province, :recipient_city, :recipient_barangay,
       :item_name, :quantity, :item_category, :weight, :value, :pickup_time, :pickup_date, :delivery_date, :remarks, :status
     )";
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute($order);
-    $_SESSION['order_saved'] = true;
-    $_SESSION['last_order'] = $order;
-    header("Location: place_order.php?step=4");
-    exit;
+  $stmt = $pdo->prepare($sql);
+  $stmt->execute($order);
+  $_SESSION['order_saved'] = true;
+  $_SESSION['last_order'] = $order;
+  header("Location: place_order.php?step=4");
+  exit;
 }
 
 $order_saved = false;
@@ -200,323 +207,359 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       text-align: center;
       width: 25%;
     }
+
     .progress-active {
       color: #ff4655;
       border-bottom: 4px solid #ff4655;
     }
+
     .fee-display {
       font-size: 2.5rem;
       color: #ff4655;
       font-weight: bold;
     }
+
     @media print {
       .no-print {
         display: none;
       }
     }
+
+    input[type="text"],
+    input[type="number"],
+    input[type="tel"],
+    input[type="email"],
+    input[type="date"],
+    input[type="password"],
+    textarea,
+    select {
+      text-transform: uppercase;
+    }
+
+    /* ⛔ Exclude value input from being uppercased */
+    input[name="value"] {
+      text-transform: none;
+    }
+
+    /* ⛔ Keep dropdown labels clean */
+    select option {
+      text-transform: none;
+    }
   </style>
   <script>
-let regions = [], provinces = [], cities = [], barangays = [];
 
-// Load JSON and always populate dropdowns after DOM is ready
-Promise.all([
-  fetch('addresses/region.json').then(res => res.json()),
-  fetch('addresses/province.json').then(res => res.json()),
-  fetch('addresses/city.json').then(res => res.json()),
-  fetch('addresses/barangay.json').then(res => res.json())
-]).then(([regionData, provinceData, cityData, barangayData]) => {
-  regions = regionData;
-  provinces = provinceData;
-  cities = cityData;
-  barangays = barangayData;
-  // Ensure DOM is ready before populating
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', function() {
-      populateRegions('sender');
-      populateRegions('recipient');
-      restoreAllDropdowns();
-    });
-  } else {
-    populateRegions('sender');
-    populateRegions('recipient');
-    restoreAllDropdowns();
-  }
-});
 
-function populateRegions(prefix) {
-  const regionSelect = document.getElementById(prefix + '_region');
-  if (!regionSelect) return;
-  regionSelect.innerHTML = '<option value="">Select Region</option>';
-  regions.forEach(region => {
-    const opt = document.createElement('option');
-    opt.value = region.region_name;
-    opt.textContent = region.region_name;
-    regionSelect.appendChild(opt);
-  });
-  regionSelect.onchange = function() { populateProvinces(prefix); };
-}
+    let regions = [], provinces = [], cities = [], barangays = [];
 
-function populateProvinces(prefix) {
-  const regionName = document.getElementById(prefix + '_region').value;
-  const provinceSelect = document.getElementById(prefix + '_province');
-  if (!provinceSelect) return;
-  provinceSelect.innerHTML = '<option value="">Select Province</option>';
-  document.getElementById(prefix + '_city').innerHTML = '<option value="">Select City/Municipality</option>';
-  document.getElementById(prefix + '_barangay').innerHTML = '<option value="">Select Barangay</option>';
-  const region = regions.find(r => r.region_name === regionName);
-  if (!region) return;
-  provinces.forEach(province => {
-    if (province.region_code === region.region_code) {
-      const opt = document.createElement('option');
-      opt.value = province.province_name;
-      opt.textContent = province.province_name;
-      provinceSelect.appendChild(opt);
-    }
-  });
-  provinceSelect.onchange = function() { populateCities(prefix); };
-}
-
-function populateCities(prefix) {
-  const provName = document.getElementById(prefix + '_province').value;
-  const citySelect = document.getElementById(prefix + '_city');
-  if (!citySelect) return;
-  citySelect.innerHTML = '<option value="">Select City/Municipality</option>';
-  document.getElementById(prefix + '_barangay').innerHTML = '<option value="">Select Barangay</option>';
-  const province = provinces.find(p => p.province_name === provName);
-  if (!province) return;
-  cities.forEach(city => {
-    if (city.province_code === province.province_code) {
-      const opt = document.createElement('option');
-      opt.value = city.city_name;
-      opt.textContent = city.city_name;
-      citySelect.appendChild(opt);
-    }
-  });
-  citySelect.onchange = function() { populateBarangays(prefix); };
-}
-
-function populateBarangays(prefix) {
-  const cityName = document.getElementById(prefix + '_city').value;
-  const barangaySelect = document.getElementById(prefix + '_barangay');
-  if (!barangaySelect) return;
-  barangaySelect.innerHTML = '<option value="">Select Barangay</option>';
-  const city = cities.find(c => c.city_name === cityName);
-  if (!city) return;
-  barangays.forEach(brgy => {
-    if (brgy.city_code === city.city_code) {
-      const opt = document.createElement('option');
-      opt.value = brgy.brgy_name;
-      opt.textContent = brgy.brgy_name;
-      barangaySelect.appendChild(opt);
-    }
-  });
-}
-
-// Restore dropdowns after postback or step change
-function restoreAllDropdowns() {
-  const senderRegion = <?= json_encode(preserve('sender_region')) ?>;
-  const senderProvince = <?= json_encode(preserve('sender_province')) ?>;
-  const senderCity = <?= json_encode(preserve('sender_city')) ?>;
-  const senderBarangay = <?= json_encode(preserve('sender_barangay')) ?>;
-  const recipientRegion = <?= json_encode(preserve('recipient_region')) ?>;
-  const recipientProvince = <?= json_encode(preserve('recipient_province')) ?>;
-  const recipientCity = <?= json_encode(preserve('recipient_city')) ?>;
-  const recipientBarangay = <?= json_encode(preserve('recipient_barangay')) ?>;
-
-  function restoreDropdown(prefix, region, province, city, barangay) {
-    let tries = 0;
-    function tryRestore() {
-      tries++;
-      if (regions.length && provinces.length && cities.length && barangays.length) {
-        // Region
-        if (region) {
-          document.getElementById(prefix + '_region').value = region;
-          populateProvinces(prefix);
-        }
-        // Province
-        if (province) {
-          document.getElementById(prefix + '_province').value = province;
-          populateCities(prefix);
-        }
-        // City
-        if (city) {
-          document.getElementById(prefix + '_city').value = city;
-          populateBarangays(prefix);
-        }
-        // Barangay
-        if (barangay) {
-          document.getElementById(prefix + '_barangay').value = barangay;
-        }
-      } else if (tries < 20) {
-        setTimeout(tryRestore, 100);
+    // Load JSON and always populate dropdowns after DOM is ready
+    Promise.all([
+      fetch('addresses/region.json').then(res => res.json()),
+      fetch('addresses/province.json').then(res => res.json()),
+      fetch('addresses/city.json').then(res => res.json()),
+      fetch('addresses/barangay.json').then(res => res.json())
+    ]).then(([regionData, provinceData, cityData, barangayData]) => {
+      regions = regionData;
+      provinces = provinceData;
+      cities = cityData;
+      barangays = barangayData;
+      // Ensure DOM is ready before populating
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function () {
+          populateRegions('sender');
+          populateRegions('recipient');
+          restoreAllDropdowns();
+        });
+      } else {
+        populateRegions('sender');
+        populateRegions('recipient');
+        restoreAllDropdowns();
       }
-    }
-    tryRestore();
-  }
+    });
 
-  restoreDropdown('sender', senderRegion, senderProvince, senderCity, senderBarangay);
-  restoreDropdown('recipient', recipientRegion, recipientProvince, recipientCity, recipientBarangay);
-}
+    function populateRegions(prefix) {
+      const regionSelect = document.getElementById(prefix + '_region');
+      if (!regionSelect) return;
+      regionSelect.innerHTML = '<option value="">Select Region</option>';
+      regions.forEach(region => {
+        const opt = document.createElement('option');
+        opt.value = region.region_name;
+        opt.textContent = region.region_name;
+        regionSelect.appendChild(opt);
+      });
+      regionSelect.onchange = function () { populateProvinces(prefix); };
+    }
+
+    function populateProvinces(prefix) {
+      const regionName = document.getElementById(prefix + '_region').value;
+      const provinceSelect = document.getElementById(prefix + '_province');
+      if (!provinceSelect) return;
+      provinceSelect.innerHTML = '<option value="">Select Province</option>';
+      document.getElementById(prefix + '_city').innerHTML = '<option value="">Select City/Municipality</option>';
+      document.getElementById(prefix + '_barangay').innerHTML = '<option value="">Select Barangay</option>';
+      const region = regions.find(r => r.region_name === regionName);
+      if (!region) return;
+      provinces.forEach(province => {
+        if (province.region_code === region.region_code) {
+          const opt = document.createElement('option');
+          opt.value = province.province_name;
+          opt.textContent = province.province_name;
+          provinceSelect.appendChild(opt);
+        }
+      });
+      provinceSelect.onchange = function () { populateCities(prefix); };
+    }
+
+    function populateCities(prefix) {
+      const provName = document.getElementById(prefix + '_province').value;
+      const citySelect = document.getElementById(prefix + '_city');
+      if (!citySelect) return;
+      citySelect.innerHTML = '<option value="">Select City/Municipality</option>';
+      document.getElementById(prefix + '_barangay').innerHTML = '<option value="">Select Barangay</option>';
+      const province = provinces.find(p => p.province_name === provName);
+      if (!province) return;
+      cities.forEach(city => {
+        if (city.province_code === province.province_code) {
+          const opt = document.createElement('option');
+          opt.value = city.city_name;
+          opt.textContent = city.city_name;
+          citySelect.appendChild(opt);
+        }
+      });
+      citySelect.onchange = function () { populateBarangays(prefix); };
+    }
+
+    function populateBarangays(prefix) {
+      const cityName = document.getElementById(prefix + '_city').value;
+      const barangaySelect = document.getElementById(prefix + '_barangay');
+      if (!barangaySelect) return;
+      barangaySelect.innerHTML = '<option value="">Select Barangay</option>';
+      const city = cities.find(c => c.city_name === cityName);
+      if (!city) return;
+      barangays.forEach(brgy => {
+        if (brgy.city_code === city.city_code) {
+          const opt = document.createElement('option');
+          opt.value = brgy.brgy_name;
+          opt.textContent = brgy.brgy_name;
+          barangaySelect.appendChild(opt);
+        }
+      });
+    }
+
+    // Restore dropdowns after postback or step change
+    function restoreAllDropdowns() {
+      const senderRegion = <?= json_encode(preserve('sender_region')) ?>;
+      const senderProvince = <?= json_encode(preserve('sender_province')) ?>;
+      const senderCity = <?= json_encode(preserve('sender_city')) ?>;
+      const senderBarangay = <?= json_encode(preserve('sender_barangay')) ?>;
+      const recipientRegion = <?= json_encode(preserve('recipient_region')) ?>;
+      const recipientProvince = <?= json_encode(preserve('recipient_province')) ?>;
+      const recipientCity = <?= json_encode(preserve('recipient_city')) ?>;
+      const recipientBarangay = <?= json_encode(preserve('recipient_barangay')) ?>;
+
+      function restoreDropdown(prefix, region, province, city, barangay) {
+        let tries = 0;
+        function tryRestore() {
+          tries++;
+          if (regions.length && provinces.length && cities.length && barangays.length) {
+            // Region
+            if (region) {
+              document.getElementById(prefix + '_region').value = region;
+              populateProvinces(prefix);
+            }
+            // Province
+            if (province) {
+              document.getElementById(prefix + '_province').value = province;
+              populateCities(prefix);
+            }
+            // City
+            if (city) {
+              document.getElementById(prefix + '_city').value = city;
+              populateBarangays(prefix);
+            }
+            // Barangay
+            if (barangay) {
+              document.getElementById(prefix + '_barangay').value = barangay;
+            }
+          } else if (tries < 20) {
+            setTimeout(tryRestore, 100);
+          }
+        }
+        tryRestore();
+      }
+
+      restoreDropdown('sender', senderRegion, senderProvince, senderCity, senderBarangay);
+      restoreDropdown('recipient', recipientRegion, recipientProvince, recipientCity, recipientBarangay);
+    }
   </script>
 </head>
 
 <body class="bg-gray-900 text-gray-200 min-h-screen flex items-center justify-center px-4">
   <div class="w-full max-w-3xl bg-gray-800 p-8 rounded shadow-xl">
-      <h1 class="text-3xl font-bold text-center text-red-500 mb-4">Shipping Form</h1>
-      <div class="flex justify-end mb-6 no-print">
-        <a href="home.php" onclick="return confirm('Are you sure you want to go back?')"
-          class="bg-gray-700 hover:bg-gray-600 text-white text-sm px-4 py-2 rounded">
-          ← Back to Home
-        </a>
-      </div>
-      <div class="flex justify-between mb-8">
-        <?php for ($i = 1; $i <= 4; $i++): ?>
-          <div class="progress-step <?= $currentStep == $i ? 'progress-active' : '' ?>">
-            <?= sprintf('%02d', $i) ?><br><span
-              class="text-sm"><?= ['Sender', 'Recipient', 'Package', 'Complete'][$i - 1] ?></span>
-          </div>
-        <?php endfor; ?>
-      </div>
+    <h1 class="text-3xl font-bold text-center text-red-500 mb-4">Shipping Form</h1>
+    <div class="flex justify-end mb-6 no-print">
+      <a href="home.php" onclick="return confirm('Are you sure you want to go back?')"
+        class="bg-gray-700 hover:bg-gray-600 text-white text-sm px-4 py-2 rounded">
+        ← Back to Home
+      </a>
+    </div>
+    <div class="flex justify-between mb-8">
+      <?php for ($i = 1; $i <= 4; $i++): ?>
+        <div class="progress-step <?= $currentStep == $i ? 'progress-active' : '' ?>">
+          <?= sprintf('%02d', $i) ?><br><span
+            class="text-sm"><?= ['Sender', 'Recipient', 'Package', 'Complete'][$i - 1] ?></span>
+        </div>
+      <?php endfor; ?>
+    </div>
 
-      <form method="POST" class="space-y-6">
-        <input type="hidden" name="step" value="<?= $currentStep ?>">
+    <form method="POST" class="space-y-6">
+      <input type="hidden" name="step" value="<?= $currentStep ?>">
 
-        <?php
+      <?php
       // Helper: output hidden fields for a list of names
-      function hidden_fields($fields) {
+      function hidden_fields($fields)
+      {
         foreach ($fields as $f) {
           echo '<input type="hidden" name="' . $f . '" value="' . preserve($f) . '">' . "\n";
         }
       }
       ?>
 
-        <?php if ($currentStep == '1'): ?>
-          <h2 class="text-xl font-semibold mb-4">01. Sender Information</h2>
-          <input name="sender_name" placeholder="Full Name" value="<?= preserve('sender_name') ?>" required
-            class="bg-gray-700 p-3 rounded w-full">
-          <input name="sender_contact" placeholder="Contact Number" pattern="^(09\d{9}|\+639\d{9})$"
-            title="09123456789 or +639123456789" value="<?= preserve('sender_contact') ?>" required
-            class="bg-gray-700 p-3 rounded w-full">
-          <input name="sender_address" placeholder="Street" value="<?= preserve('sender_address') ?>" required
-            class="bg-gray-700 p-3 rounded w-full">
-          <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <select name="sender_region" id="sender_region" required class="bg-gray-700 p-2 rounded">
-              <option value="">Select Region</option>
-            </select>
-            <select name="sender_province" id="sender_province" required class="bg-gray-700 p-2 rounded">
-              <option value="">Select Province</option>
-            </select>
-            <select name="sender_city" id="sender_city" required class="bg-gray-700 p-2 rounded">
-              <option value="">Select City/Municipality</option>
-            </select>
-            <select name="sender_barangay" id="sender_barangay" required class="bg-gray-700 p-2 rounded">
-              <option value="">Select Barangay</option>
-            </select>
-          </div>
-          <div class="flex justify-end mt-6">
-            <button type="submit" name="step" value="2"
-              class="bg-red-600 hover:bg-red-700 px-6 py-2 rounded text-white no-print">Next →</button>
-          </div>
+      <?php if ($currentStep == '1'): ?>
+        <h2 class="text-xl font-semibold mb-4">01. Sender Information</h2>
+        <input name="sender_name" placeholder="Full Name" value="<?= preserve('sender_name') ?>" required
+          class="bg-gray-700 p-3 rounded w-full">
+        <input name="sender_contact" placeholder="Contact Number" pattern="^(09\d{9}|\+639\d{9})$" maxlength="11"
+          title="Enter a valid 11-digit number like 09123456789" value="<?= preserve('sender_contact') ?>" required
+          class="bg-gray-700 p-3 rounded w-full">
+        <input name="sender_address" placeholder="Street" value="<?= preserve('sender_address') ?>" required
+          class="bg-gray-700 p-3 rounded w-full">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <select name="sender_region" id="sender_region" required class="bg-gray-700 p-2 rounded">
+            <option value="">Select Region</option>
+          </select>
+          <select name="sender_province" id="sender_province" required class="bg-gray-700 p-2 rounded">
+            <option value="">Select Province</option>
+          </select>
+          <select name="sender_city" id="sender_city" required class="bg-gray-700 p-2 rounded">
+            <option value="">Select City/Municipality</option>
+          </select>
+          <select name="sender_barangay" id="sender_barangay" required class="bg-gray-700 p-2 rounded">
+            <option value="">Select Barangay</option>
+          </select>
+        </div>
+        <div class="flex justify-end mt-6">
+          <button type="submit" name="step" value="2"
+            class="bg-red-600 hover:bg-red-700 px-6 py-2 rounded text-white no-print">Next →</button>
+        </div>
 
-        <?php elseif ($currentStep == '2'): ?>
-          <?php hidden_fields([
-            'sender_name','sender_contact','sender_address',
-            'sender_region','sender_province','sender_city','sender_barangay'
-          ]); ?>
-          <h2 class="text-xl font-semibold mb-4">02. Recipient Information</h2>
-          <input name="recipient_name" placeholder="Full Name" value="<?= preserve('recipient_name') ?>" required
-            class="bg-gray-700 p-3 rounded w-full">
-          <input name="recipient_contact" placeholder="Contact Number" pattern="^(09\d{9}|\+639\d{9})$"
-            value="<?= preserve('recipient_contact') ?>" required class="bg-gray-700 p-3 rounded w-full">
-          <input name="recipient_address" placeholder="Street" value="<?= preserve('recipient_address') ?>" required
-            class="bg-gray-700 p-3 rounded w-full">
-          <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <select name="recipient_region" id="recipient_region" required class="bg-gray-700 p-2 rounded">
-              <option value="">Select Region</option>
-            </select>
-            <select name="recipient_province" id="recipient_province" required class="bg-gray-700 p-2 rounded">
-              <option value="">Select Province</option>
-            </select>
-            <select name="recipient_city" id="recipient_city" required class="bg-gray-700 p-2 rounded">
-              <option value="">Select City/Municipality</option>
-            </select>
-            <select name="recipient_barangay" id="recipient_barangay" required class="bg-gray-700 p-2 rounded">
-              <option value="">Select Barangay</option>
-            </select>
-          </div>
-          <div class="flex justify-between items-center mt-6 no-print">
-            <button type="submit" name="step" value="1" class="bg-gray-700 px-6 py-2 rounded">← Back</button>
-            <button type="submit" name="step" value="3" class="bg-red-600 hover:bg-red-700 px-6 py-2 rounded">Next →</button>
-          </div>
+      <?php elseif ($currentStep == '2'): ?>
+        <?php hidden_fields([
+          'sender_name',
+          'sender_contact',
+          'sender_address',
+          'sender_region',
+          'sender_province',
+          'sender_city',
+          'sender_barangay'
+        ]); ?>
+        <h2 class="text-xl font-semibold mb-4">02. Recipient Information</h2>
+        <input name="recipient_name" placeholder="Full Name" value="<?= preserve('recipient_name') ?>" required
+          class="bg-gray-700 p-3 rounded w-full">
+        <input name="recipient_contact" placeholder="Contact Number" pattern="^(09\d{9}|\+639\d{9})$" maxlength="11"
+          title="Enter a valid 11-digit number like 09123456789" value="<?= preserve('recipient_contact') ?>" required
+          class="bg-gray-700 p-3 rounded w-full">
+        <input name="recipient_address" placeholder="Street" value="<?= preserve('recipient_address') ?>" required
+          class="bg-gray-700 p-3 rounded w-full">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <select name="recipient_region" id="recipient_region" required class="bg-gray-700 p-2 rounded">
+            <option value="">Select Region</option>
+          </select>
+          <select name="recipient_province" id="recipient_province" required class="bg-gray-700 p-2 rounded">
+            <option value="">Select Province</option>
+          </select>
+          <select name="recipient_city" id="recipient_city" required class="bg-gray-700 p-2 rounded">
+            <option value="">Select City/Municipality</option>
+          </select>
+          <select name="recipient_barangay" id="recipient_barangay" required class="bg-gray-700 p-2 rounded">
+            <option value="">Select Barangay</option>
+          </select>
+        </div>
+        <div class="flex justify-between items-center mt-6 no-print">
+          <button type="submit" name="step" value="1" class="bg-gray-700 px-6 py-2 rounded">← Back</button>
+          <button type="submit" name="step" value="3" class="bg-red-600 hover:bg-red-700 px-6 py-2 rounded">Next
+            →</button>
+        </div>
 
       <?php elseif ($currentStep == '3'): ?>
         <?php
+
         // Carry sender and recipient fields forward
         hidden_fields([
-          'sender_name','sender_contact','sender_address',
-          'sender_region','sender_province','sender_city','sender_barangay',
-          'recipient_name','recipient_contact','recipient_address',
-          'recipient_region','recipient_province','recipient_city','recipient_barangay'
+          'sender_name',
+          'sender_contact',
+          'sender_address',
+          'sender_region',
+          'sender_province',
+          'sender_city',
+          'sender_barangay',
+          'recipient_name',
+          'recipient_contact',
+          'recipient_address',
+          'recipient_region',
+          'recipient_province',
+          'recipient_city',
+          'recipient_barangay'
         ]);
+
         $senderCity = preserve('sender_city');
         $recipientCity = preserve('recipient_city');
+
+        $region = preserve('recipient_region'); // ✅ This must come before it's used
+        $rawValue = str_replace(',', '', preserve('value'));
+        $value = is_numeric($rawValue) ? floatval($rawValue) : 0;
         $weight = floatval(preserve('weight'));
-        $value = floatval(str_replace(',', '', preserve('value')));
-        $weight = floatval(preserve('weight'));
+
         $estimated = calculate_estimated_fee($region, $weight, $value);
 
-
-
         ?>
-        <?php
-// Carry sender and recipient fields forward
-hidden_fields([
-  'sender_name','sender_contact','sender_address',
-  'sender_region','sender_province','sender_city','sender_barangay',
-  'recipient_name','recipient_contact','recipient_address',
-  'recipient_region','recipient_province','recipient_city','recipient_barangay'
-]);
 
-$senderCity = preserve('sender_city');
-$recipientCity = preserve('recipient_city');
+        <h2 class="text-xl font-semibold">03. Package Information</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <input name="item_name" placeholder="Item Name (optional)" value="<?= preserve('item_name') ?>"
+            class="bg-gray-700 p-2 rounded">
+          <input type="number" name="quantity" placeholder="Quantity (optional)" value="<?= preserve('quantity') ?>"
+            min="1" class="bg-gray-700 p-2 rounded">
+          <select name="item_category" required class="bg-gray-700 p-2 rounded">
+            <option value="">Select Category *</option>
+            <?php foreach (['parcel', 'electronics', 'document', 'appliances', 'clothing', 'food', 'furniture', 'toys', 'books', 'fragile', 'others'] as $cat): ?>
+              <option value="<?= $cat ?>" <?= preserve('item_category') == $cat ? 'selected' : '' ?>><?= ucfirst($cat) ?>
+              </option>
+            <?php endforeach; ?>
+          </select>
+          <input type="number" name="weight" placeholder="Weight (kg) *" value="<?= preserve('weight') ?>" min="0.01"
+            step="0.01" required class="bg-gray-700 p-2 rounded">
+          <input type="text" name="value" inputmode="numeric" pattern="[0-9,]*" placeholder="Goods Value (₱) *"
+            value="<?= preserve('value') ?>" required class="bg-gray-700 p-2 rounded">
+          <select name="pickup_time" required class="bg-gray-700 p-2 rounded">
+            <option value="">Pickup Time</option>
+            <?php foreach (['8AM-10AM', '10AM-12PM', '1PM-3PM', '3PM-5PM'] as $time): ?>
+              <option <?= preserve('pickup_time') == $time ? 'selected' : '' ?>><?= $time ?></option>
+            <?php endforeach; ?>
+          </select>
+          <input type="date" name="pickup_date" value="<?= preserve('pickup_date') ?>" required
+            class="bg-gray-700 p-4 rounded text-lg border-2 border-red-500 focus:border-red-700 focus:outline-none transition w-full"
+            style="font-size:1.25rem;">
+          <textarea name="remarks" placeholder="Remarks (optional)" rows="2"
+            class="bg-gray-700 p-2 rounded"><?= preserve('remarks') ?></textarea>
+        </div>
 
-$rawValue = str_replace(',', '', preserve('value'));
-$value = is_numeric($rawValue) ? floatval($rawValue) : 0;
-$weight = floatval(preserve('weight'));
-$region = preserve('recipient_region');
-
-$estimated = calculate_estimated_fee($region, $weight, $value);
-?>
-
-<h2 class="text-xl font-semibold">03. Package Information</h2>
-<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-  <input name="item_name" placeholder="Item Name (optional)" value="<?= preserve('item_name') ?>" class="bg-gray-700 p-2 rounded">
-  <input type="number" name="quantity" placeholder="Quantity (optional)" value="<?= preserve('quantity') ?>" min="1" class="bg-gray-700 p-2 rounded">
-  <select name="item_category" required class="bg-gray-700 p-2 rounded">
-    <option value="">Select Category *</option>
-    <?php foreach (['parcel', 'electronics', 'document', 'appliances', 'clothing', 'food', 'furniture', 'toys', 'books', 'fragile', 'others'] as $cat): ?>
-      <option value="<?= $cat ?>" <?= preserve('item_category') == $cat ? 'selected' : '' ?>><?= ucfirst($cat) ?></option>
-    <?php endforeach; ?>
-  </select>
-  <input type="number" name="weight" placeholder="Weight (kg) *" value="<?= preserve('weight') ?>" min="0.01" step="0.01" required class="bg-gray-700 p-2 rounded">
-  <input type="text" name="value" inputmode="numeric" pattern="[0-9,]*" placeholder="Goods Value (₱) *" value="<?= preserve('value') ?>" required class="bg-gray-700 p-2 rounded">
-  <select name="pickup_time" required class="bg-gray-700 p-2 rounded">
-    <option value="">Pickup Time</option>
-    <?php foreach (['8AM-10AM', '10AM-12PM', '1PM-3PM', '3PM-5PM'] as $time): ?>
-      <option <?= preserve('pickup_time') == $time ? 'selected' : '' ?>><?= $time ?></option>
-    <?php endforeach; ?>
-  </select>
-  <input type="date" name="pickup_date" value="<?= preserve('pickup_date') ?>" required class="bg-gray-700 p-4 rounded text-lg border-2 border-red-500 focus:border-red-700 focus:outline-none transition w-full" style="font-size:1.25rem;">
-  <textarea name="remarks" placeholder="Remarks (optional)" rows="2" class="bg-gray-700 p-2 rounded"><?= preserve('remarks') ?></textarea>
-</div>
-
-<div class="text-center mt-4">
-  <p class="uppercase text-gray-400">Estimated Fee</p>
-  <div class="fee-display" id="feeDisplay">
-    ₱<?= number_format($estimated, 2) ?>
-  </div>
-  <small class="text-gray-400">Auto-updates when you enter weight or value</small>
-</div>
+        <div class="text-center mt-4">
+          <p class="uppercase text-gray-400">Estimated Fee</p>
+          <div class="fee-display" id="feeDisplay">
+            ₱<?= number_format($estimated, 2) ?>
+          </div>
+          <small class="text-gray-400">Auto-updates when you enter weight or value</small>
+        </div>
 
         <div class="mt-4 no-print">
           <label><input type="checkbox" required class="mr-2">I have read, understand agreed to the terms and
@@ -532,11 +575,28 @@ $estimated = calculate_estimated_fee($region, $weight, $value);
         <?php
         // Carry all fields forward (for printing or further processing)
         hidden_fields([
-          'sender_name','sender_contact','sender_address',
-          'sender_region','sender_province','sender_city','sender_barangay',
-          'recipient_name','recipient_contact','recipient_address',
-          'recipient_region','recipient_province','recipient_city','recipient_barangay',
-          'item_name','quantity','item_category','weight','value','pickup_time','pickup_date','remarks'
+          'sender_name',
+          'sender_contact',
+          'sender_address',
+          'sender_region',
+          'sender_province',
+          'sender_city',
+          'sender_barangay',
+          'recipient_name',
+          'recipient_contact',
+          'recipient_address',
+          'recipient_region',
+          'recipient_province',
+          'recipient_city',
+          'recipient_barangay',
+          'item_name',
+          'quantity',
+          'item_category',
+          'weight',
+          'value',
+          'pickup_time',
+          'pickup_date',
+          'remarks'
         ]);
         // Delivery date: 2 days after pickup_date
         $pickup_date = preserve('pickup_date');
@@ -552,21 +612,27 @@ $estimated = calculate_estimated_fee($region, $weight, $value);
             <?= preserve('sender_name') ?: 'N/A' ?><br>
             <?= preserve('sender_contact') ?: 'N/A' ?><br>
             <?= preserve('sender_address') ?: 'N/A' ?><br>
-            <?= preserve('sender_barangay') ?: '' ?><?= preserve('sender_barangay') ? ', ' : '' ?><?= preserve('sender_city') ?: '' ?><?= preserve('sender_city') ? ', ' : '' ?><?= preserve('sender_province') ?: '' ?><?= preserve('sender_province') ? ', ' : '' ?><?= preserve('sender_region') ?: '' ?>
+            <?= preserve('sender_barangay') ?: '' ?>   <?= preserve('sender_barangay') ? ', ' : '' ?>
+            <?= preserve('sender_city') ?: '' ?>   <?= preserve('sender_city') ? ', ' : '' ?>
+            <?= preserve('sender_province') ?: '' ?>   <?= preserve('sender_province') ? ', ' : '' ?>
+            <?= preserve('sender_region') ?: '' ?>
           </div>
           <div class="mb-4">
             <strong>Recipient:</strong><br>
             <?= preserve('recipient_name') ?: 'N/A' ?><br>
             <?= preserve('recipient_contact') ?: 'N/A' ?><br>
             <?= preserve('recipient_address') ?: 'N/A' ?><br>
-            <?= preserve('recipient_barangay') ?: '' ?><?= preserve('recipient_barangay') ? ', ' : '' ?><?= preserve('recipient_city') ?: '' ?><?= preserve('recipient_city') ? ', ' : '' ?><?= preserve('recipient_province') ?: '' ?><?= preserve('recipient_province') ? ', ' : '' ?><?= preserve('recipient_region') ?: '' ?>
+            <?= preserve('recipient_barangay') ?: '' ?>   <?= preserve('recipient_barangay') ? ', ' : '' ?>
+            <?= preserve('recipient_city') ?: '' ?>   <?= preserve('recipient_city') ? ', ' : '' ?>
+            <?= preserve('recipient_province') ?: '' ?>   <?= preserve('recipient_province') ? ', ' : '' ?>
+            <?= preserve('recipient_region') ?: '' ?>
           </div>
           <div class="mb-4">
             <strong>Package:</strong><br>
             Category: <?= preserve('item_category') ?: 'N/A' ?><br>
             Weight: <?= is_numeric(preserve('weight')) ? preserve('weight') : '0' ?> kg<br>
             <?php $value = preserve('value'); ?>
-            Value: ₱<?= is_numeric($value) ? number_format((float)$value, 2) : '0.00' ?><br>
+            Value: ₱<?= is_numeric($value) ? number_format((float) $value, 2) : '0.00' ?><br>
             Pickup: <?= preserve('pickup_time') ?: 'N/A' ?> on <?= $pickup_date ?: 'N/A' ?><br>
             Delivery Date: <?= $delivery_date ?: 'N/A' ?><br>
             Remarks: <?= preserve('remarks') ?: 'None' ?>
@@ -578,31 +644,46 @@ $estimated = calculate_estimated_fee($region, $weight, $value);
     </form>
   </div>
   <script>
-function calculateFee() {
-  const base = <?= isset($base_fee) ? $base_fee : 0 ?>;
-  const weightInput = document.querySelector('input[name="weight"]');
-  const valueInput = document.querySelector('input[name="value"]');
-  const feeDisplay = document.getElementById('feeDisplay');
-  if (!weightInput || !valueInput || !feeDisplay) return;
+    document.addEventListener('DOMContentLoaded', () => {
+      // Auto-uppercase all text fields (except for 'value')
+      document.querySelectorAll('input[type="text"]:not([name="value"]), textarea').forEach(input => {
+        input.addEventListener('input', () => {
+          input.value = input.value.toUpperCase();
+        });
+      });
 
-  const weight = parseFloat(weightInput.value) || 0;
-  const rawValue = valueInput.value.replace(/,/g, '');
-  const value = parseFloat(rawValue) || 0;
+      // Enforce contact number limit and numeric-only for sender and recipient
+      const contactFields = document.querySelectorAll('input[name="sender_contact"], input[name="recipient_contact"]');
+      contactFields.forEach(input => {
+        input.addEventListener('input', () => {
+          input.value = input.value.replace(/\D/g, '').slice(0, 11); // only digits, max 11
+        });
+      });
 
-  const fee = base + (weight * 40) + (value);
-  feeDisplay.textContent = fee.toLocaleString('en-PH', {
-    style: 'currency',
-    currency: 'PHP',
-    minimumFractionDigits: 2
-  });
-}
+      // Fee recalculation
+      const weightInput = document.querySelector('input[name="weight"]');
+      const valueInput = document.querySelector('input[name="value"]');
+      if (weightInput) weightInput.addEventListener('input', calculateFee);
+      if (valueInput) valueInput.addEventListener('input', calculateFee);
+      calculateFee();
+    });
 
+    function calculateFee() {
+      const base = <?= isset($base_fee) ? $base_fee : 0 ?>;
+      const weightInput = document.querySelector('input[name="weight"]');
+      const valueInput = document.querySelector('input[name="value"]');
+      const feeDisplay = document.getElementById('feeDisplay');
+      if (!weightInput || !valueInput || !feeDisplay) return;
 
-document.addEventListener('DOMContentLoaded', () => {
-  const weightInput = document.querySelector('input[name="weight"]');
-  const valueInput = document.querySelector('input[name="value"]');
-  if (weightInput) weightInput.addEventListener('input', calculateFee);
-  if (valueInput) valueInput.addEventListener('input', calculateFee);
-  calculateFee(); // Initial calculation on load
-});
-</script>
+      const weight = parseFloat(weightInput.value) || 0;
+      const rawValue = valueInput.value.replace(/,/g, '');
+      const value = parseFloat(rawValue) || 0;
+
+      const fee = base + (weight * 40) + value;
+      feeDisplay.textContent = fee.toLocaleString('en-PH', {
+        style: 'currency',
+        currency: 'PHP',
+        minimumFractionDigits: 2
+      });
+    }
+  </script>
