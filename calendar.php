@@ -17,9 +17,8 @@ $user_orders = $stmt->fetchAll();
 $events = [];
 foreach ($user_orders as $order) {
   if (!empty($order['delivery_date']) && strtotime($order['delivery_date']) !== false) {
-    $statusRaw = $order['status'] ?? 'Pending';
-    $statusLower = strtolower($statusRaw);
-    $color = match ($statusLower) {
+    $status = strtolower($order['status'] ?? 'pending');
+    $color = match ($status) {
       'delivered' => '#22c55e',
       'in transit' => '#eab308',
       'pending' => '#6b7280',
@@ -32,10 +31,10 @@ foreach ($user_orders as $order) {
       'id' => $order['id'],
       'color' => $color,
       'extendedProps' => [
-        'status' => $statusRaw  // Keep original DB value for dropdown filter match
+        'status' => $order['status'] // keep original case
       ]
-    ];
 
+    ];
   }
 }
 ?>
@@ -195,22 +194,6 @@ foreach ($user_orders as $order) {
       margin-top: 1rem;
     }
   </style>
-  <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      var calendarEl = document.getElementById('calendar');
-      var calendar = new FullCalendar.Calendar(calendarEl, {
-        initialView: 'dayGridMonth',
-        events: <?= json_encode($events) ?>,
-        eventColor: '#ff4655',
-        eventClick: function (info) {
-          window.open('account.php?order_id=' + info.event.id, '_blank');
-        },
-        dayMaxEvents: true
-      });
-      calendar.render();
-    });
-  </script>
-  >>>>>>> ec1bd51b026ff835b4aa9e5ed8e002f5fbf4a1b1
 </head>
 
 <body>
@@ -231,13 +214,12 @@ foreach ($user_orders as $order) {
   <div id="filters">
     <label for="statusFilter">Filter by Status:</label>
     <select id="statusFilter">
-      <option value="All">All</option>
-      <option value="Delivered">Delivered</option>
-      <option value="In Transit">In Transit</option>
-      <option value="Pending">Pending</option>
-      <option value="Cancelled">Cancelled</option>
+      <option value="all">All</option>
+      <option value="delivered">Delivered</option>
+      <option value="in transit">In Transit</option>
+      <option value="pending">Pending</option>
+      <option value="cancelled">Cancelled</option>
     </select>
-
   </div>
 
   <div id="orderCount"
@@ -327,7 +309,6 @@ foreach ($user_orders as $order) {
         const filtered = selected === 'all'
           ? rawEvents
           : rawEvents.filter(e => (e.extendedProps.status || '').toLowerCase() === selected);
-
         calendar.removeAllEvents();
         calendar.addEventSource(filtered);
       });

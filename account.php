@@ -109,7 +109,6 @@ if ($order_id) {
                 <?= htmlspecialchars($order['sender_name']) ?> - <?= htmlspecialchars($order['sender_contact']) ?>
             </div>
         </div>
-
         <div class="text-center mt-4">
             <a href="account.php" class="back-btn">Go to Orders Overview</a>
             <a href="calendar.php" class="back-btn ml-4"> ← Back to Calendar</a>
@@ -144,7 +143,7 @@ $undelivered_orders = array_filter($all_orders, function ($order) {
 <html lang="en">
 
 <head>
-    <title>Orders Overview</title>
+    <title>Parcels Overview</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link href="https://cdn.tailwindcss.com" rel="stylesheet">
@@ -215,7 +214,7 @@ $undelivered_orders = array_filter($all_orders, function ($order) {
 </head>
 
 <body>
-    <div class="title">📦 Orders Overview</div>
+    <div class="title">📦 Parcels Overview</div>
 
     <div class="container">
         <!-- Delivered Orders -->
