@@ -16,12 +16,26 @@ $user_orders = $stmt->fetchAll();
 
 $events = [];
 foreach ($user_orders as $order) {
-  if (!empty($order['delivery_date'])) {
+  if (!empty($order['delivery_date']) && strtotime($order['delivery_date']) !== false) {
+    $statusRaw = $order['status'] ?? 'Pending';
+    $statusLower = strtolower($statusRaw);
+    $color = match ($statusLower) {
+      'delivered' => '#22c55e',
+      'in transit' => '#eab308',
+      'pending' => '#6b7280',
+      'cancelled' => '#ef4444',
+      default => '#3b82f6'
+    };
     $events[] = [
       'title' => $order['recipient_name'] . ' (' . $order['item_category'] . ')',
       'start' => $order['delivery_date'],
       'id' => $order['id'],
+      'color' => $color,
+      'extendedProps' => [
+        'status' => $statusRaw  // Keep original DB value for dropdown filter match
+      ]
     ];
+
   }
 }
 ?>
@@ -42,7 +56,6 @@ foreach ($user_orders as $order) {
       padding: 0;
     }
 
-    /* 🔺 Navigation Bar */
     nav {
       position: sticky;
       top: 0;
@@ -99,6 +112,21 @@ foreach ($user_orders as $order) {
       font-size: 2rem;
     }
 
+    #filters {
+      max-width: 900px;
+      margin: 0 auto;
+      text-align: right;
+      padding: 0 20px 10px;
+    }
+
+    #filters select {
+      padding: 6px 12px;
+      background: #2a2a2a;
+      color: #eee;
+      border: 1px solid #444;
+      border-radius: 6px;
+    }
+
     #calendar {
       max-width: 900px;
       margin: 20px auto;
@@ -120,31 +148,63 @@ foreach ($user_orders as $order) {
     .fc-button:hover {
       background-color: #ff3242 !important;
     }
+
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 999;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(4px);
+    }
+
+    .modal-content {
+      background-color: #1e1e1e;
+      color: #eee;
+      margin: 8% auto;
+      padding: 30px;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 640px;
+      box-shadow: 0 0 30px rgba(255, 70, 85, 0.2);
+      position: relative;
+      border: 1px solid #333;
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 14px;
+      right: 20px;
+      color: #fff;
+      font-size: 24px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+
+    .close-btn:hover {
+      color: #ff4655;
+    }
+
+    .order-list {
+      list-style: none;
+      padding: 0;
+      margin-top: 1rem;
+    }
   </style>
-  <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      var calendarEl = document.getElementById('calendar');
-      var calendar = new FullCalendar.Calendar(calendarEl, {
-        initialView: 'dayGridMonth',
-        events: <?= json_encode($events) ?>,
-        eventClick: function (info) {
-          window.open('account.php?order_id=' + info.event.id, '_blank');
-        },
-        dayMaxEvents: true
-      });
-      calendar.render();
-    });
-  </script>
 </head>
 
 <body>
 
-  <!-- 🔺 Navbar -->
   <nav>
     <div class="logo">VALORCRATE</div>
     <div class="nav-links">
       <a href="home.php">Home</a>
-      <a href="place_order.php">Order</a>
+      <a href="place_order.php">Place Order</a>
+      <a href="order_tracker.php">Order Tracker</a>
       <a href="calendar.php">Calendar</a>
       <a href="account.php">Account</a>
       <a href="logout.php">Logout</a>
@@ -152,7 +212,126 @@ foreach ($user_orders as $order) {
   </nav>
 
   <h2>Delivery Calendar</h2>
+  <div id="filters">
+    <label for="statusFilter">Filter by Status:</label>
+    <select id="statusFilter">
+      <option value="All">All</option>
+      <option value="Delivered">Delivered</option>
+      <option value="In Transit">In Transit</option>
+      <option value="Pending">Pending</option>
+      <option value="Cancelled">Cancelled</option>
+    </select>
+
+  </div>
+
+  <div id="orderCount"
+    style="max-width: 900px; margin: 0 auto; text-align: left; padding: 0 20px; font-size: 1rem; color: #ccc;">
+    Orders this month: <span id="orderCountValue">0</span>
+  </div>
+
   <div id="calendar"></div>
+
+  <div style="max-width: 900px; margin: 0 auto; text-align: right; padding: 10px 20px;">
+    <button id="openTrackerBtn"
+      style="padding: 10px 20px; background-color: #ff4655; color: white; font-weight: bold; border: none; border-radius: 8px; cursor: pointer;">
+      Track My Orders
+    </button>
+  </div>
+
+  <div id="trackerModal" class="modal">
+    <div class="modal-content">
+      <span class="close-btn">&times;</span>
+      <h3 class="text-2xl font-semibold text-pink-500 border-b border-gray-600 pb-2 mb-4">📦 Your Orders</h3>
+      <?php if (count($user_orders) > 0): ?>
+        <ul class="order-list">
+          <?php foreach ($user_orders as $order): ?>
+            <li
+              style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;margin-bottom:10px;background:#2a2a2a;border-radius:8px;">
+              <div style="font-size: 0.9rem; color: #ccc;">
+                <div style="font-weight: bold; color: #fff;"><?= htmlspecialchars($order['recipient_name']) ?></div>
+                <div><?= htmlspecialchars($order['item_category']) ?> • <?= htmlspecialchars($order['delivery_date']) ?>
+                </div>
+              </div>
+              <div>
+                <?php
+                $status = $order['status'] ?? 'Pending';
+                $statusColor = match (strtolower($status)) {
+                  'delivered' => '#22c55e',
+                  'in transit' => '#eab308',
+                  'pending' => '#6b7280',
+                  'cancelled' => '#ef4444',
+                  default => '#3b82f6'
+                };
+                ?>
+                <span
+                  style="background:<?= $statusColor ?>;color:white;padding:5px 12px;border-radius:9999px;font-size:0.75rem;">
+                  <?= ucfirst($status) ?>
+                </span>
+              </div>
+            </li>
+          <?php endforeach; ?>
+        </ul>
+      <?php else: ?>
+        <div class="text-gray-400 text-sm">No orders found.</div>
+      <?php endif; ?>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const calendarEl = document.getElementById('calendar');
+      const statusFilter = document.getElementById('statusFilter');
+      let rawEvents = <?= json_encode($events) ?>;
+
+      const calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        events: rawEvents,
+        eventClick: function (info) {
+          window.open('account.php?order_id=' + info.event.id, '_blank');
+        },
+        dayMaxEvents: true,
+        datesSet: updateOrderCount
+      });
+
+      calendar.render();
+
+      function updateOrderCount(info) {
+        const start = new Date(info.start);
+        const end = new Date(info.end);
+        let count = 0;
+        calendar.getEvents().forEach(event => {
+          const date = new Date(event.start);
+          if (date >= start && date < end) count++;
+        });
+        document.getElementById('orderCountValue').textContent = count;
+      }
+
+      statusFilter.addEventListener('change', () => {
+        const selected = statusFilter.value.toLowerCase();
+        const filtered = selected === 'all'
+          ? rawEvents
+          : rawEvents.filter(e => (e.extendedProps.status || '').toLowerCase() === selected);
+
+        calendar.removeAllEvents();
+        calendar.addEventSource(filtered);
+      });
+
+
+      document.getElementById('openTrackerBtn').addEventListener('click', () => {
+        document.getElementById('trackerModal').style.display = 'block';
+      });
+
+      document.querySelector('.close-btn').addEventListener('click', () => {
+        document.getElementById('trackerModal').style.display = 'none';
+      });
+
+      window.addEventListener('click', e => {
+        if (e.target === document.getElementById('trackerModal')) {
+          document.getElementById('trackerModal').style.display = 'none';
+        }
+      });
+    });
+  </script>
 
 </body>
 

@@ -7,15 +7,19 @@ $username = isset($_SESSION['username']) ? $_SESSION['username'] : '';
 $order_id = isset($_GET['order_id']) ? intval($_GET['order_id']) : null;
 
 if ($order_id) {
-    // Show only the selected order
     $stmt = $pdo->prepare("SELECT * FROM orders WHERE id = ? AND username = ?");
     $stmt->execute([$order_id, $username]);
     $order = $stmt->fetch();
+
     if (!$order) {
         echo "<h2 style='color:#ff4655;text-align:center;margin-top:2rem;'>Order not found or access denied.</h2>";
         echo "<div style='text-align:center;'><a href='account.php' style='color:#ff4655;text-decoration:underline;'>Back to Orders Overview</a></div>";
         exit;
     }
+
+    $countStmt = $pdo->prepare("SELECT COUNT(*) FROM orders WHERE username = ?");
+    $countStmt->execute([$username]);
+    $totalOrders = $countStmt->fetchColumn();
     ?>
     <!DOCTYPE html>
     <html lang="en">
@@ -24,7 +28,7 @@ if ($order_id) {
         <title>Order Details</title>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link href="https://cdn.tailwindcss.com" rel="stylesheet">
+        <script src="https://cdn.tailwindcss.com"></script>
         <style>
             body {
                 background: #1a1a1a;
@@ -74,6 +78,13 @@ if ($order_id) {
     </head>
 
     <body>
+        <div class="order-card text-center" style="background:#1f1f1f;">
+            <div class="order-section-title text-lg">Total Orders Placed</div>
+            <div class="order-content text-2xl text-green-400 font-bold">
+                <?= $totalOrders ?>
+            </div>
+        </div>
+
         <div class="order-card">
             <div class="order-section-title">Delivery Date:</div>
             <div class="order-content"><?= htmlspecialchars($order['delivery_date']) ?></div>
@@ -89,8 +100,8 @@ if ($order_id) {
             <div class="order-content">
                 <?= htmlspecialchars($order['item_category']) ?> - <?= htmlspecialchars($order['weight']) ?>kg<br>
                 Value: ₱<?= htmlspecialchars($order['value']) ?><br>
-                <strong>Item:</strong> <?= htmlspecialchars($order['item']) ?? 'N/A' ?><br>
-                <strong>Quantity:</strong> <?= htmlspecialchars($order['quantity']) ?? 'N/A' ?>
+                <strong>Item:</strong> <?= isset($order['item_name']) ? htmlspecialchars($order['item_name']) : 'N/A' ?><br>
+                <strong>Quantity:</strong> <?= isset($order['quantity']) ? htmlspecialchars($order['quantity']) : 'N/A' ?>
             </div>
 
             <div class="order-section-title">Sender:</div>
@@ -98,8 +109,10 @@ if ($order_id) {
                 <?= htmlspecialchars($order['sender_name']) ?> - <?= htmlspecialchars($order['sender_contact']) ?>
             </div>
         </div>
-        <div style="text-align:center;">
-            <a href="account.php" class="back-btn">← Back to Orders Overview</a>
+
+        <div class="text-center mt-4">
+            <a href="account.php" class="back-btn">Go to Orders Overview</a>
+            <a href="calendar.php" class="back-btn ml-4"> ← Back to Calendar</a>
         </div>
     </body>
 
@@ -107,6 +120,7 @@ if ($order_id) {
     <?php
     exit;
 }
+
 
 $stmt = $pdo->prepare("SELECT * FROM orders WHERE username = ? ORDER BY id DESC");
 $stmt->execute([$username]);
@@ -224,8 +238,13 @@ $undelivered_orders = array_filter($all_orders, function ($order) {
                         <div class="order-content">
                             <?= htmlspecialchars($order['item_category']) ?> - <?= htmlspecialchars($order['weight']) ?>kg<br>
                             Value: ₱<?= htmlspecialchars($order['value']) ?><br>
-                            <strong>Item:</strong> <?= htmlspecialchars($order['item']) ?? 'N/A' ?><br>
-                            <strong>Quantity:</strong> <?= htmlspecialchars($order['quantity']) ?? 'N/A' ?>
+                            <strong>Item:</strong>
+                            <?= isset($order['item_name']) ? htmlspecialchars($order['item_name']) : 'N/A' ?><br>
+
+
+                            <strong>Quantity:</strong>
+                            <?= isset($order['quantity']) ? htmlspecialchars($order['quantity']) : 'N/A' ?>
+
                         </div>
 
                         <div class="order-section-title">Sender:</div>
@@ -259,8 +278,10 @@ $undelivered_orders = array_filter($all_orders, function ($order) {
                         <div class="order-content">
                             <?= htmlspecialchars($order['item_category']) ?> - <?= htmlspecialchars($order['weight']) ?>kg<br>
                             Value: ₱<?= htmlspecialchars($order['value']) ?><br>
-                            <strong>Item:</strong> <?= htmlspecialchars($order['item']) ?? 'N/A' ?><br>
-                            <strong>Quantity:</strong> <?= htmlspecialchars($order['quantity']) ?? 'N/A' ?>
+                            <strong>Item:</strong>
+                            <?= isset($order['item_name']) ? htmlspecialchars($order['item_name']) : 'N/A' ?><br>
+                            <strong>Quantity:</strong>
+                            <?= isset($order['quantity']) ? htmlspecialchars($order['quantity']) : 'N/A' ?>
                         </div>
 
                         <div class="order-section-title">Sender:</div>
@@ -273,6 +294,7 @@ $undelivered_orders = array_filter($all_orders, function ($order) {
                 <div class="text-center text-gray-400 text-lg">All parcels are delivered.</div>
             <?php endif; ?>
         </div>
+
     </div>
 
     <div class="text-center mt-10">
