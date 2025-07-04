@@ -17,8 +17,9 @@ if ($order_id) {
         exit;
     }
 
-    $countStmt = $pdo->prepare("SELECT COUNT(*) FROM orders WHERE username = ?");
-    $countStmt->execute([$username]);
+    $deliveryDate = $order['delivery_date'];
+    $countStmt = $pdo->prepare("SELECT COUNT(*) FROM orders WHERE username = ? AND delivery_date = ?");
+    $countStmt->execute([$username, $deliveryDate]);
     $totalOrders = $countStmt->fetchColumn();
     ?>
     <!DOCTYPE html>
