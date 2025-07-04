@@ -195,6 +195,22 @@ foreach ($user_orders as $order) {
       margin-top: 1rem;
     }
   </style>
+  <<<<<<< HEAD=======<script>
+    document.addEventListener('DOMContentLoaded', function () {
+    var calendarEl = document.getElementById('calendar');
+    var calendar = new FullCalendar.Calendar(calendarEl, {
+    initialView: 'dayGridMonth',
+    events: <?= json_encode($events) ?>,
+    eventColor: '#ff4655',
+    eventClick: function (info) {
+    window.open('account.php?order_id=' + info.event.id, '_blank');
+    },
+    dayMaxEvents: true
+    });
+    calendar.render();
+    });
+    </script>
+    >>>>>>> ec1bd51b026ff835b4aa9e5ed8e002f5fbf4a1b1
 </head>
 
 <body>
