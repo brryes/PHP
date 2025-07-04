@@ -226,24 +226,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     input[type="text"],
-    input[type="number"],
     input[type="tel"],
     input[type="email"],
-    input[type="date"],
     input[type="password"],
-    textarea,
-    select {
+    input[type="date"],
+    input[type="number"],
+    textarea {
       text-transform: uppercase;
     }
 
-    /* ⛔ Exclude value input from being uppercased */
-    input[name="value"] {
-      text-transform: none;
+    /* ❌ Don't uppercase the value input */
+    input:not([name="value"]):not([type="hidden"]),
+    textarea:not([name="remarks"]) {
+      text-transform: uppercase !important;
     }
 
-    /* ⛔ Keep dropdown labels clean */
+    /* ❌ Don't uppercase dropdown options */
     select option {
-      text-transform: none;
+      text-transform: none !important;
     }
   </style>
   <script>
@@ -645,28 +645,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   </div>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      // Auto-uppercase all text fields (except for 'value')
-      document.querySelectorAll('input[type="text"]:not([name="value"]), textarea').forEach(input => {
+      // ✅ Uppercase on input except for `value` and `remarks`
+      const autoUppercase = document.querySelectorAll(
+        'input:not([name="value"]):not([type="hidden"]), textarea:not([name="remarks"])'
+      );
+      autoUppercase.forEach(input => {
         input.addEventListener('input', () => {
           input.value = input.value.toUpperCase();
         });
       });
 
-      // Enforce contact number limit and numeric-only for sender and recipient
+      // ✅ Numeric + 11-digit limit for contact
       const contactFields = document.querySelectorAll('input[name="sender_contact"], input[name="recipient_contact"]');
       contactFields.forEach(input => {
         input.addEventListener('input', () => {
-          input.value = input.value.replace(/\D/g, '').slice(0, 11); // only digits, max 11
+          input.value = input.value.replace(/\D/g, '').slice(0, 11);
         });
       });
 
-      // Fee recalculation
+      // ✅ Fee recalculation
       const weightInput = document.querySelector('input[name="weight"]');
       const valueInput = document.querySelector('input[name="value"]');
       if (weightInput) weightInput.addEventListener('input', calculateFee);
       if (valueInput) valueInput.addEventListener('input', calculateFee);
       calculateFee();
     });
+
+
 
     function calculateFee() {
       const base = <?= isset($base_fee) ? $base_fee : 0 ?>;
