@@ -4,7 +4,29 @@ if (!isset($_SESSION["username"])) {
   header("Location: index.php");
   exit;
 }
+
+$username = $_SESSION['username'];
+$hour = date('H');
+
+// Determine greeting and corresponding Tailwind color class
+if ($hour < 12) {
+  $greeting = "Good morning";
+  $bgColor = "bg-yellow-500/10";
+  $borderColor = "border-yellow-500";
+  $textColor = "text-yellow-400";
+} elseif ($hour < 18) {
+  $greeting = "Good afternoon";
+  $bgColor = "bg-orange-500/10";
+  $borderColor = "border-orange-500";
+  $textColor = "text-orange-400";
+} else {
+  $greeting = "Good evening";
+  $bgColor = "bg-indigo-600/10";
+  $borderColor = "border-indigo-500";
+  $textColor = "text-indigo-400";
+}
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -20,6 +42,22 @@ if (!isset($_SESSION["username"])) {
       margin: 0;
       font-family: 'Oswald', sans-serif;
       overflow: hidden;
+    }
+
+    @keyframes fadeInDown {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .animate-fadeInDown {
+      animation: fadeInDown 0.6s ease-out;
     }
 
     #bg-video {
@@ -149,6 +187,17 @@ if (!isset($_SESSION["username"])) {
   <!-- 🔳 Overlay -->
   <div class="video-overlay"></div>
 
+  <!-- 🌇 Dynamic Time-Based Greeting -->
+  <div
+    class="absolute top-6 right-6 <?= $bgColor ?> border <?= $borderColor ?> text-white px-5 py-3 rounded-xl z-50 backdrop-blur-md shadow-[0_0_15px_rgba(255,70,85,0.4)] animate-fadeInDown">
+    <div class="text-sm md:text-base leading-tight">
+      <div class="text-gray-300"><?= $greeting ?>,</div>
+      <div class="font-bold <?= $textColor ?> tracking-wide"><?= htmlspecialchars($username) ?>!</div>
+    </div>
+  </div>
+
+
+
   <!-- 🔊 Background Music -->
   <audio id="bg-music" autoplay loop>
     <source src="bgmusic.mp3" type="audio/mpeg">
@@ -160,6 +209,8 @@ if (!isset($_SESSION["username"])) {
 
   <!-- 🌟 Main Layout -->
   <div class="main-wrapper">
+
+
     <img src="valorcrate_logo.png" alt="ValorCrate Logo" class="logo" />
 
     <!-- Place Order shown first in the grid -->
