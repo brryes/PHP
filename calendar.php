@@ -127,6 +127,7 @@ foreach ($user_orders as $order) {
       var calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'dayGridMonth',
         events: <?= json_encode($events) ?>,
+        eventColor: '#ff4655',
         eventClick: function (info) {
           window.open('account.php?order_id=' + info.event.id, '_blank');
         },
