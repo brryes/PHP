@@ -3,17 +3,9 @@ session_start();
 $username = isset($_SESSION['username']) ? $_SESSION['username'] : '';
 require_once 'db_connect.php';
 
-// If order_id is set, show only that order's details
-$order_id = isset($_GET['order_id']) ? intval($_GET['order_id']) : null;
-if ($order_id) {
-    $stmt = $pdo->prepare("SELECT * FROM orders WHERE id = ? AND username = ?");
-    $stmt->execute([$order_id, $username]);
-    $user_orders = $stmt->fetchAll();
-} else {
-    $stmt = $pdo->prepare("SELECT * FROM orders WHERE username = ? ORDER BY id DESC");
-    $stmt->execute([$username]);
-    $user_orders = $stmt->fetchAll();
-}
+$stmt = $pdo->prepare("SELECT * FROM orders WHERE username = ? ORDER BY id DESC");
+$stmt->execute([$username]);
+$user_orders = $stmt->fetchAll();
 
 $status_steps = [
     "Pending Pickup",
@@ -136,6 +128,19 @@ $status_steps = [
         .print-btn:hover {
             background: #b02a2a;
         }
+        .cancel-btn {
+            background: #ef4444;
+            color: #fff;
+            padding: 0.4rem 1rem;
+            margin-top: 0.5rem;
+            border-radius: 0.3rem;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .cancel-btn:hover {
+            background: #b02a2a;
+        }
         .back-btn {
             position: fixed;
             bottom: 2rem;
@@ -165,7 +170,6 @@ $status_steps = [
             <div class="tracker-grid">
                 <!-- Cards -->
                 <?php foreach ($user_orders as $order): ?>
-                    <!-- Logic for status -->
                     <?php
                     $status_idx = 0;
                     if (!empty($order['pickup_date'])) {
@@ -176,6 +180,11 @@ $status_steps = [
                         if ($now >= strtotime($order['pickup_date'] . ' +2 days')) $status_idx = 3;
                         if (!empty($order['delivery_date']) && $now >= strtotime($order['delivery_date'])) $status_idx = 4;
                     }
+                    // Cancel logic
+                    $now = time();
+                    $delivery_time = !empty($order['delivery_date']) ? strtotime($order['delivery_date']) : 0;
+                    $db_status = strtolower(trim($order['status'] ?? ''));
+                    $can_cancel = $db_status !== 'cancelled' && $db_status !== 'delivered' && $delivery_time > $now;
                     ?>
                     <div class="tracker-card">
                         <div class="tracker-section-title">Pickup Date: <span class="text-red-500"><?= htmlspecialchars($order['pickup_date'] ?? '') ?></span></div>
@@ -208,6 +217,14 @@ $status_steps = [
                                 </div>
                             <?php endforeach; ?>
                         </div>
+                        <?php if ($can_cancel): ?>
+                            <form method="post" action="cancel_order.php" style="margin-top:1rem;">
+                                <input type="hidden" name="order_id" value="<?= htmlspecialchars($order['id']) ?>">
+                                <button type="submit" class="cancel-btn">Cancel Order</button>
+                            </form>
+                        <?php elseif ($db_status === 'cancelled'): ?>
+                            <div style="margin-top:1rem;color:#ef4444;font-weight:bold;">Order Cancelled</div>
+                        <?php endif; ?>
                         <div class="print-summary">
                             <strong>Print Summary:</strong><br>
                             Sender: <?= htmlspecialchars($order['sender_name'] ?? '') ?>, <?= htmlspecialchars($order['sender_contact'] ?? '') ?><br>
@@ -238,3 +255,5 @@ $status_steps = [
     </div>
 
     <a href="home.php" class="back-btn"><i class="fas fa-chevron-left"></i> Back to Menu</a>
+</body>
+</html>
