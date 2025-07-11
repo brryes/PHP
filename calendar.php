@@ -14,10 +14,26 @@ $stmt = $pdo->prepare("SELECT * FROM orders WHERE username = ?");
 $stmt->execute([$username]);
 $user_orders = $stmt->fetchAll();
 
+// Prepare events for FullCalendar
 $events = [];
 foreach ($user_orders as $order) {
   if (!empty($order['delivery_date']) && strtotime($order['delivery_date']) !== false) {
-    $status = strtolower($order['status'] ?? 'pending');
+    $now = time();
+    $delivery_time = strtotime($order['delivery_date']);
+    $db_status = strtolower(trim($order['status'] ?? ''));
+
+    // --- STATUS LOGIC ---
+    if ($db_status === 'cancelled') {
+      $status = 'cancelled';
+    } elseif ($delivery_time <= $now) {
+      $status = 'delivered';
+    } elseif ($db_status === 'in transit') {
+      $status = 'in transit';
+    } else {
+      // If not cancelled, not delivered, not in transit, and delivery is in the future, it's pending
+      $status = 'pending';
+    }
+
     $color = match ($status) {
       'delivered' => '#22c55e',
       'in transit' => '#eab308',
@@ -30,10 +46,7 @@ foreach ($user_orders as $order) {
       'start' => $order['delivery_date'],
       'id' => $order['id'],
       'color' => $color,
-      'extendedProps' => [
-        'status' => $order['status'] // keep original case
-      ]
-
+      'status' => $status, // <-- for filtering in JS
     ];
   }
 }
@@ -252,8 +265,20 @@ foreach ($user_orders as $order) {
               </div>
               <div>
                 <?php
-                $status = $order['status'] ?? 'Pending';
-                $statusColor = match (strtolower($status)) {
+                // Use the same logic as above for status
+                $now = time();
+                $delivery_time = strtotime($order['delivery_date']);
+                $db_status = strtolower(trim($order['status'] ?? ''));
+                if ($db_status === 'cancelled') {
+                  $status = 'cancelled';
+                } elseif ($delivery_time <= $now) {
+                  $status = 'delivered';
+                } elseif ($db_status === 'in transit') {
+                  $status = 'in transit';
+                } else {
+                  $status = 'pending';
+                }
+                $statusColor = match ($status) {
                   'delivered' => '#22c55e',
                   'in transit' => '#eab308',
                   'pending' => '#6b7280',
@@ -281,9 +306,13 @@ foreach ($user_orders as $order) {
       const statusFilter = document.getElementById('statusFilter');
       let rawEvents = <?= json_encode($events) ?>;
 
+      function cloneEvents(events) {
+        return events.map(e => ({ ...e }));
+      }
+
       const calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'dayGridMonth',
-        events: rawEvents,
+        events: cloneEvents(rawEvents),
         eventClick: function (info) {
           window.open('account.php?order_id=' + info.event.id, '_blank');
         },
@@ -308,11 +337,10 @@ foreach ($user_orders as $order) {
         const selected = statusFilter.value.toLowerCase();
         const filtered = selected === 'all'
           ? rawEvents
-          : rawEvents.filter(e => (e.extendedProps.status || '').toLowerCase() === selected);
+          : rawEvents.filter(e => (e.status || '').toLowerCase() === selected);
         calendar.removeAllEvents();
-        calendar.addEventSource(filtered);
+        calendar.addEventSource(cloneEvents(filtered));
       });
-
 
       document.getElementById('openTrackerBtn').addEventListener('click', () => {
         document.getElementById('trackerModal').style.display = 'block';
@@ -329,7 +357,5 @@ foreach ($user_orders as $order) {
       });
     });
   </script>
-
 </body>
-
 </html>
