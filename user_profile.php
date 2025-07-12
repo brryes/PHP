@@ -98,8 +98,9 @@ if (!$user) {
         }
 
         .value.text-2xl {
-            text-shadow: 0 0 5px rgba(255, 70, 85, 0.6);
+            text-shadow: 0 0 6px rgba(255, 70, 85, 0.7);
         }
+
 
 
         nav {
@@ -163,7 +164,9 @@ if (!$user) {
 
         <div class="info-row">
             <div class="label text-lg">Username:</div>
-            <div class="value text-2xl text-pink-400 font-extrabold tracking-wide">
+            <div class="value text-3xl font-extrabold tracking-wide text-[#ff4655]"
+                style="text-shadow: 0 0 10px rgba(255, 70, 85, 0.8);">
+
                 <?= htmlspecialchars($user['username']) ?>
             </div>
         </div>
