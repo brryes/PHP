@@ -1,4 +1,5 @@
 <?php
+// filepath: c:\xampp\htdocs\PHP\admin_login.php
 session_start();
 require_once 'db_connect.php';
 
@@ -94,6 +95,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <a href="admin_register.php" class="hover:underline block mb-2">Don’t have an admin account?
                     Register</a>
                 <p class="text-gray-400">v109.9.1</p>
+            </div>
+
+            <!-- Back to Sign In -->
+            <div class="text-xs text-center text-gray-500 mt-6">
+                 <a href="index.php" class="hover:underline block mt-2 text-red-500 font-semibold">
+                 ← Back to Sign In
+            </a>
             </div>
         </div>
     </div>
