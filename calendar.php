@@ -124,11 +124,17 @@ foreach ($user_orders as $order) {
       font-size: 2rem;
     }
 
+
     #filters {
-      max-width: 900px;
-      margin: 0 auto;
-      text-align: right;
-      padding: 0 20px 10px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    #filters label {
+      font-weight: bold;
+      color: #ff4655;
     }
 
     #filters select {
@@ -137,6 +143,13 @@ foreach ($user_orders as $order) {
       color: #eee;
       border: 1px solid #444;
       border-radius: 6px;
+    }
+
+    #filterSection {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 20px 8px;
+      text-align: left;
     }
 
     #calendar {
@@ -160,6 +173,23 @@ foreach ($user_orders as $order) {
     .fc-button:hover {
       background-color: #ff3242 !important;
     }
+
+    #filterContainer {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 20px 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    #filters {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
 
     .modal {
       display: none;
@@ -206,6 +236,51 @@ foreach ($user_orders as $order) {
       padding: 0;
       margin-top: 1rem;
     }
+
+    #openTrackerBtn {
+      padding: 8px 14px;
+      background-color: #ff4655;
+      color: white;
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: transform 0.2s ease, background-color 0.3s ease, box-shadow 0.2s ease;
+    }
+
+    #trackerButtonWrapper {
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    #openTrackerBtn:hover {
+      background-color: #ff3242;
+      transform: scale(1.05);
+      box-shadow: 0 0 10px rgba(255, 70, 85, 0.5);
+    }
+
+    @media (max-width: 600px) {
+      #filterContainer {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+      }
+
+      #openTrackerBtn {
+        align-self: flex-end;
+      }
+    }
+
+    .custom-event-hover {
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      border-radius: 6px;
+    }
+
+    .custom-event-hover:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 10px rgba(255, 70, 85, 0.5);
+      z-index: 10;
+    }
   </style>
 </head>
 
@@ -224,30 +299,32 @@ foreach ($user_orders as $order) {
   </nav>
 
   <h2>Delivery Calendar</h2>
-  <div id="filters">
-    <label for="statusFilter">Filter by Status:</label>
-    <select id="statusFilter">
-      <option value="all">All</option>
-      <option value="delivered">Delivered</option>
-      <option value="in transit">In Transit</option>
-      <option value="pending">Pending</option>
-      <option value="cancelled">Cancelled</option>
-    </select>
+  <div id="filterContainer">
+    <div id="filters">
+      <label for="statusFilter">Filter by Status:</label>
+      <select id="statusFilter">
+        <option value="all">All</option>
+        <option value="delivered">Delivered</option>
+        <option value="in transit">In Transit</option>
+        <option value="pending">Pending</option>
+        <option value="cancelled">Cancelled</option>
+      </select>
+    </div>
+
+    <div id="trackerButtonWrapper">
+      <button id="openTrackerBtn">Track My Orders</button>
+    </div>
   </div>
+
+
 
   <div id="orderCount"
     style="max-width: 900px; margin: 0 auto; text-align: left; padding: 0 20px; font-size: 1rem; color: #ccc;">
     Orders this month: <span id="orderCountValue">0</span>
   </div>
 
-  <div id="calendar"></div>
 
-  <div style="max-width: 900px; margin: 0 auto; text-align: right; padding: 10px 20px;">
-    <button id="openTrackerBtn"
-      style="padding: 10px 20px; background-color: #ff4655; color: white; font-weight: bold; border: none; border-radius: 8px; cursor: pointer;">
-      Track My Orders
-    </button>
-  </div>
+  <div id="calendar"></div>
 
   <div id="trackerModal" class="modal">
     <div class="modal-content">
@@ -317,8 +394,15 @@ foreach ($user_orders as $order) {
           window.open('account.php?order_id=' + info.event.id, '_blank');
         },
         dayMaxEvents: true,
-        datesSet: updateOrderCount
+        datesSet: updateOrderCount,
+        eventDidMount: function (info) {
+          // Set tooltip with recipient name and delivery date
+          const tooltip = `Recipient: ${info.event.title}\nDelivery Date: ${info.event.start.toLocaleDateString()}`;
+          info.el.setAttribute('title', tooltip);
+          info.el.classList.add('custom-event-hover');
+        }
       });
+
 
       calendar.render();
 
@@ -358,4 +442,5 @@ foreach ($user_orders as $order) {
     });
   </script>
 </body>
+
 </html>
