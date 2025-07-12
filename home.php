@@ -10,17 +10,17 @@ $hour = date('H');
 
 // Determine greeting and corresponding Tailwind color class
 if ($hour < 12) {
-  $greeting = "Hello User";
+  $greeting = "Good morning";
   $bgColor = "bg-yellow-500/10";
   $borderColor = "border-yellow-500";
   $textColor = "text-yellow-400";
 } elseif ($hour < 18) {
-  $greeting = "Hello User";
+  $greeting = "Good afternoon";
   $bgColor = "bg-orange-500/10";
   $borderColor = "border-orange-500";
   $textColor = "text-orange-400";
 } else {
-  $greeting = "Hello User";
+  $greeting = "Good evening";
   $bgColor = "bg-indigo-600/10";
   $borderColor = "border-indigo-500";
   $textColor = "text-indigo-400";
