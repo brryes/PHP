@@ -241,6 +241,7 @@ if ($hour < 12) {
     });
 
     bgMusic.volume = 0.2;
+    hoverSound.volume = 0.3;
 
     function enableAudio() {
       bgMusic.play().catch(e => console.log("Autoplay blocked:", e));
