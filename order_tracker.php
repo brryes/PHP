@@ -17,6 +17,7 @@ $status_steps = [
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <title>Shipping Order Tracker</title>
     <meta charset="utf-8" />
@@ -33,16 +34,19 @@ $status_steps = [
             color: #e0e0e0;
             position: relative;
         }
+
         header {
             text-align: center;
             padding: 4rem 1rem 2rem;
         }
+
         .tracker-title {
             font-size: 2.5rem;
             color: #ff4655;
             font-weight: 800;
             text-shadow: 0 2px 8px #000a;
         }
+
         .tracker-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
@@ -50,6 +54,7 @@ $status_steps = [
             justify-content: center;
             padding: 1rem;
         }
+
         .tracker-card {
             background: rgba(24, 24, 24, 0.95);
             border: 1px solid #2c2f36;
@@ -58,29 +63,35 @@ $status_steps = [
             padding: 1.5rem;
             transition: transform 0.2s, box-shadow 0.2s;
         }
+
         .tracker-card:hover {
             transform: scale(1.02);
             box-shadow: 0 0 20px #ff4655;
         }
+
         .tracker-section-title {
             color: #b0b0b0;
             font-size: 1.05rem;
             font-weight: 600;
             margin-bottom: 0.4rem;
         }
+
         .tracker-address {
             font-size: 0.95rem;
             color: #fcd34d;
             margin-bottom: 1rem;
         }
+
         .tracker-steps {
             margin-top: 1.5rem;
         }
+
         .tracker-step {
             display: flex;
             align-items: center;
             margin-bottom: 1rem;
         }
+
         .tracker-circle {
             width: 30px;
             height: 30px;
@@ -94,20 +105,25 @@ $status_steps = [
             margin-right: 1rem;
             border: 2px solid #ff4655;
         }
+
         .tracker-step.active .tracker-circle {
             background: #ff4655;
         }
+
         .tracker-step.completed .tracker-circle {
             background: #22c55e;
             border-color: #22c55e;
         }
+
         .tracker-step.completed .tracker-label {
             color: #22c55e;
         }
+
         .tracker-label {
             font-size: 1rem;
             color: #fff;
         }
+
         .print-summary {
             background: #1e1e1e;
             border-radius: 0.5rem;
@@ -116,6 +132,7 @@ $status_steps = [
             font-size: 0.95rem;
             color: #f1f1f1;
         }
+
         .print-btn {
             background: #ff4655;
             color: #fff;
@@ -125,9 +142,11 @@ $status_steps = [
             border: none;
             cursor: pointer;
         }
+
         .print-btn:hover {
             background: #b02a2a;
         }
+
         .cancel-btn {
             background: #ef4444;
             color: #fff;
@@ -138,9 +157,11 @@ $status_steps = [
             cursor: pointer;
             font-weight: bold;
         }
+
         .cancel-btn:hover {
             background: #b02a2a;
         }
+
         .back-btn {
             position: fixed;
             bottom: 2rem;
@@ -154,13 +175,67 @@ $status_steps = [
             transition: 0.2s;
             z-index: 50;
         }
+
         .back-btn:hover {
             background: #ff4655;
             color: #fff;
         }
+
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(17, 17, 17, 0.85);
+            backdrop-filter: blur(8px);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            z-index: 999;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+        }
+
+        nav .logo {
+            font-size: 1.6rem;
+            color: #ff4655;
+            font-weight: bold;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px rgba(255, 70, 85, 0.6);
+        }
+
+        nav .nav-links a {
+            margin-left: 1.5rem;
+            text-decoration: none;
+            color: #ccc;
+            font-weight: 500;
+            transition: color 0.3s ease;
+            position: relative;
+        }
+
+        nav .nav-links a:hover {
+            color: #ff4655;
+        }
+
+        nav .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -6px;
+            left: 0;
+            width: 0%;
+            height: 2px;
+            background-color: #ff4655;
+            transition: width 0.3s ease-in-out;
+        }
+
+        nav .nav-links a:hover::after {
+            width: 100%;
+        }
     </style>
 </head>
+
 <body>
+    <?php include 'navbar.php'; ?>
     <header>
         <div class="tracker-title"><i class="fas fa-shipping-fast"></i> Shipping Order Tracker</div>
     </header>
@@ -175,10 +250,14 @@ $status_steps = [
                     if (!empty($order['pickup_date'])) {
                         $pickup_time = strtotime($order['pickup_date']);
                         $now = time();
-                        if ($now >= $pickup_time) $status_idx = 1;
-                        if ($now >= strtotime($order['pickup_date'] . ' +1 day')) $status_idx = 2;
-                        if ($now >= strtotime($order['pickup_date'] . ' +2 days')) $status_idx = 3;
-                        if (!empty($order['delivery_date']) && $now >= strtotime($order['delivery_date'])) $status_idx = 4;
+                        if ($now >= $pickup_time)
+                            $status_idx = 1;
+                        if ($now >= strtotime($order['pickup_date'] . ' +1 day'))
+                            $status_idx = 2;
+                        if ($now >= strtotime($order['pickup_date'] . ' +2 days'))
+                            $status_idx = 3;
+                        if (!empty($order['delivery_date']) && $now >= strtotime($order['delivery_date']))
+                            $status_idx = 4;
                     }
                     // Cancel logic
                     $now = time();
@@ -187,16 +266,20 @@ $status_steps = [
                     $can_cancel = $db_status !== 'cancelled' && $db_status !== 'delivered' && $delivery_time > $now;
                     ?>
                     <div class="tracker-card">
-                        <div class="tracker-section-title">Pickup Date: <span class="text-red-500"><?= htmlspecialchars($order['pickup_date'] ?? '') ?></span></div>
-                        <div class="tracker-section-title">Delivery Date: <span class="text-gray-300"><?= htmlspecialchars($order['delivery_date'] ?? '') ?></span></div>
+                        <div class="tracker-section-title">Pickup Date: <span
+                                class="text-red-500"><?= htmlspecialchars($order['pickup_date'] ?? '') ?></span></div>
+                        <div class="tracker-section-title">Delivery Date: <span
+                                class="text-gray-300"><?= htmlspecialchars($order['delivery_date'] ?? '') ?></span></div>
                         <div class="tracker-section-title">Recipient:</div>
                         <div class="tracker-address">
                             <?= htmlspecialchars($order['recipient_name'] ?? '') ?><br>
                             <?= htmlspecialchars($order['recipient_contact'] ?? '') ?><br>
                             <?= htmlspecialchars($order['recipient_address'] ?? '') ?><br>
-                            <?= htmlspecialchars($order['recipient_barangay'] ?? '') ?><?= $order['recipient_barangay'] ? ', ' : '' ?>
-                            <?= htmlspecialchars($order['recipient_city'] ?? '') ?><?= $order['recipient_city'] ? ', ' : '' ?>
-                            <?= htmlspecialchars($order['recipient_province'] ?? '') ?><?= $order['recipient_province'] ? ', ' : '' ?>
+                            <?= htmlspecialchars($order['recipient_barangay'] ?? '') ?>
+                            <?= $order['recipient_barangay'] ? ', ' : '' ?>
+                            <?= htmlspecialchars($order['recipient_city'] ?? '') ?>         <?= $order['recipient_city'] ? ', ' : '' ?>
+                            <?= htmlspecialchars($order['recipient_province'] ?? '') ?>
+                            <?= $order['recipient_province'] ? ', ' : '' ?>
                             <?= htmlspecialchars($order['recipient_region'] ?? '') ?>
                         </div>
                         <div class="tracker-section-title">Package:</div>
@@ -227,16 +310,20 @@ $status_steps = [
                         <?php endif; ?>
                         <div class="print-summary">
                             <strong>Print Summary:</strong><br>
-                            Sender: <?= htmlspecialchars($order['sender_name'] ?? '') ?>, <?= htmlspecialchars($order['sender_contact'] ?? '') ?><br>
+                            Sender: <?= htmlspecialchars($order['sender_name'] ?? '') ?>,
+                            <?= htmlspecialchars($order['sender_contact'] ?? '') ?><br>
                             <?= htmlspecialchars($order['sender_address'] ?? '') ?>,<br>
-                            <?= htmlspecialchars($order['sender_barangay'] ?? '') ?><?= $order['sender_barangay'] ? ', ' : '' ?>
-                            <?= htmlspecialchars($order['sender_city'] ?? '') ?><?= $order['sender_city'] ? ', ' : '' ?>
-                            <?= htmlspecialchars($order['sender_province'] ?? '') ?><?= $order['sender_province'] ? ', ' : '' ?>
+                            <?= htmlspecialchars($order['sender_barangay'] ?? '') ?>
+                            <?= $order['sender_barangay'] ? ', ' : '' ?>
+                            <?= htmlspecialchars($order['sender_city'] ?? '') ?>         <?= $order['sender_city'] ? ', ' : '' ?>
+                            <?= htmlspecialchars($order['sender_province'] ?? '') ?>
+                            <?= $order['sender_province'] ? ', ' : '' ?>
                             <?= htmlspecialchars($order['sender_region'] ?? '') ?><br>
                             Package: <?= htmlspecialchars($order['item_category'] ?? '') ?>,
                             <?= htmlspecialchars($order['weight'] ?? '') ?>kg,
                             ₱<?= htmlspecialchars($order['value'] ?? '') ?>,<br>
-                            Pickup: <?= htmlspecialchars($order['pickup_date'] ?? '') ?> <?= htmlspecialchars($order['pickup_time'] ?? '') ?>,
+                            Pickup: <?= htmlspecialchars($order['pickup_date'] ?? '') ?>
+                            <?= htmlspecialchars($order['pickup_time'] ?? '') ?>,
                             Delivery: <?= htmlspecialchars($order['delivery_date'] ?? '') ?><br>
                             Remarks: <?= htmlspecialchars($order['remarks'] ?? '') ?>
                             <br>
@@ -256,4 +343,5 @@ $status_steps = [
 
     <a href="home.php" class="back-btn"><i class="fas fa-chevron-left"></i> Back to Menu</a>
 </body>
+
 </html>

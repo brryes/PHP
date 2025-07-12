@@ -245,6 +245,57 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     select option {
       text-transform: none !important;
     }
+
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: rgba(17, 17, 17, 0.85);
+      backdrop-filter: blur(8px);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2rem;
+      z-index: 999;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    }
+
+    nav .logo {
+      font-size: 1.6rem;
+      color: #ff4655;
+      font-weight: bold;
+      letter-spacing: 2px;
+      text-shadow: 0 0 10px rgba(255, 70, 85, 0.6);
+    }
+
+    nav .nav-links a {
+      margin-left: 1.5rem;
+      text-decoration: none;
+      color: #ccc;
+      font-weight: 500;
+      transition: color 0.3s ease;
+      position: relative;
+    }
+
+    nav .nav-links a:hover {
+      color: #ff4655;
+    }
+
+    nav .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: -6px;
+      left: 0;
+      width: 0%;
+      height: 2px;
+      background-color: #ff4655;
+      transition: width 0.3s ease-in-out;
+    }
+
+    nav .nav-links a:hover::after {
+      width: 100%;
+    }
   </style>
   <script>
 
@@ -392,6 +443,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
   </script>
 </head>
+<?php include 'navbar.php'; ?>
 
 <body class="bg-gray-900 text-gray-200 min-h-screen flex items-center justify-center px-4">
   <div class="w-full max-w-3xl bg-gray-800 p-8 rounded shadow-xl">
