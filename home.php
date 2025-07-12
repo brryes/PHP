@@ -188,13 +188,14 @@ if ($hour < 12) {
   <div class="video-overlay"></div>
 
   <!-- 🌇 Dynamic Time-Based Greeting -->
-  <div
-    class="absolute top-6 right-6 <?= $bgColor ?> border <?= $borderColor ?> text-white px-5 py-3 rounded-xl z-50 backdrop-blur-md shadow-[0_0_15px_rgba(255,70,85,0.4)] animate-fadeInDown">
-    <div class="text-sm md:text-base leading-tight">
+  <a href="user_profile.php" title="View Profile"
+    class="absolute top-6 right-6 <?= $bgColor ?> border <?= $borderColor ?> text-white px-5 py-3 rounded-xl z-50 backdrop-blur-md shadow-[0_0_15px_rgba(255,70,85,0.4)] animate-fadeInDown transition transform hover:scale-105 hover:shadow-lg">
+    <div class="text-sm md:text-base leading-tight text-center">
       <div class="text-gray-300"><?= $greeting ?>,</div>
-      <div class="font-bold <?= $textColor ?> tracking-wide"><?= htmlspecialchars($username) ?>!</div>
+      <div class="font-bold <?= $textColor ?> tracking-wide underline"><?= htmlspecialchars($username) ?>!</div>
     </div>
-  </div>
+  </a>
+
 
 
 
@@ -216,9 +217,9 @@ if ($hour < 12) {
     <!-- Place Order shown first in the grid -->
     <div class="menu-grid">
       <a href="place_order.php" class="menu-btn">Place Order</a>
-      <a href="order_tracker.php" class="menu-btn">Order Tracker</a>
+      <a href="order_tracker.php" class="menu-btn">Track Order</a>
       <a href="calendar.php" class="menu-btn">Calendar</a>
-      <a href="account.php" class="menu-btn">Account</a>
+      <a href="account.php" class="menu-btn">Order Details</a>
     </div>
 
     <!-- Logout button at bottom center -->
