@@ -126,14 +126,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     <input type="password" name="confirm_password" placeholder="Confirm Password" required
                         class="w-full px-4 py-3 rounded-full bg-white border border-gray-300" />
-
-                    <select name="role" required class="w-full px-4 py-3 rounded-full bg-white border border-gray-300">
-                        <option value="Administrator" <?= ($_POST['role'] ?? '') === 'Administrator' ? 'selected' : '' ?>>
-                            Administrator</option>
-                        <option value="Manager" <?= ($_POST['role'] ?? '') === 'Manager' ? 'selected' : '' ?>>Manager
-                        </option>
-                    </select>
-
                     <button type="submit" class="hidden"></button>
                 </form>
             </div>
